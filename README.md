@@ -23,3 +23,28 @@
    compileSdk = 34
    jvmTarget = "1.8"
    kotlinCompilerExtensionVersion = "1.5.1"
+
+3.**Counter app**
+  It is a practice app for demostrating MVVM. 
+  How it works : 
+  1. Use Increment button to increment count by 1.
+  2. Use Decrement button to decrement count by 1.
+  3. State is maintained when mobile screen is roatated.
+
+   Specs :
+   minSdk = 24
+   targetSdk = 34
+   compileSdk = 34
+   jvmTarget = "1.8"
+   kotlinCompilerExtensionVersion = "1.5.1"
+   
+4. **Recipe app**
+   It is a practice project for demonstrating how to fetch data using retrofit apis and display on UI.
+   Uses TheMealDB's api
+
+   Specs :
+   minSdk = 24
+   targetSdk = 34
+   compileSdk = 34
+   jvmTarget = "1.8"
+   kotlinCompilerExtensionVersion = "1.5.1"
