@@ -31,12 +31,12 @@
   2. Use Decrement button to decrement count by 1.
   3. State is maintained when mobile screen is roatated.
 
-   Specs :
-   minSdk = 24
-   targetSdk = 34
-   compileSdk = 34
-   jvmTarget = "1.8"
-   kotlinCompilerExtensionVersion = "1.5.1"
+  Specs :
+  minSdk = 24
+  targetSdk = 34
+  compileSdk = 34
+  jvmTarget = "1.8"
+  kotlinCompilerExtensionVersion = "1.5.1"
    
 4. **Recipe app**
    It is a practice project for demonstrating how to fetch data using retrofit apis and display on UI.
