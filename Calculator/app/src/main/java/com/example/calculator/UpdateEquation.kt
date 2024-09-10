@@ -39,12 +39,12 @@ class UpdateEquation {
                     stack.removeLast()
                 }
             }
-            return if (stack.isEmpty()
-                && str.last().toString() != ")"
+            return if (str.last().toString() != ")"
                 && symbols.contains(str.last().toString())) {
                 "("
-            } else if (!symbols.contains(str.last().toString())
-                && str.last().toString() != "."){
+            } else if (str.last().toString() == "(") {
+                "("
+            } else if (str.last().toString().toIntOrNull() != null || !stack.isEmpty()){
                 ")"
             } else {
                 ""
