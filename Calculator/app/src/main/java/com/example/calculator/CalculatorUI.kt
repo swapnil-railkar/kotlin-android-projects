@@ -23,14 +23,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun Calculator() {
 
     val calculatorViewModel : CalculatorViewModel = viewModel()
-    val context = LocalContext.current
+
     Column(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End
