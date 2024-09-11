@@ -23,15 +23,14 @@ class UpdateEquation {
         }
 
     }
-
-    // TODO : Work on balancing brackets
+    
     fun getBracket(equation: String) : String {
 
         if (equation.isEmpty()) {
             return "("
         } else {
             val stack = ArrayDeque<Char>()
-            val str = equation.trim().replace("\\s".toRegex(), "")
+            val str = equation.trim()
             for (value in str) {
                 if (value == '(') {
                     stack.addLast('(')

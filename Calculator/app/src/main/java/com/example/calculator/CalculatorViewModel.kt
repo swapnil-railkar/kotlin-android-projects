@@ -42,4 +42,8 @@ class CalculatorViewModel : ViewModel(){
         _equation.value = "Answer"
     }
 
+    fun backSpace() {
+        _equation.value = _equation.value.trim().dropLast(1)
+    }
+
 }
