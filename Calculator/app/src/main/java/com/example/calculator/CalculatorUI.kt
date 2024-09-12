@@ -69,7 +69,7 @@ fun Calculator() {
                 .background(Color.White),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            val values = mutableListOf<String>("7","8","9","X")
+            val values = mutableListOf<String>("7","8","9","x")
             ButtonRow(values = values, calculatorViewModel = calculatorViewModel)
         }
 

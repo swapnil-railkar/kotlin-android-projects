@@ -2,7 +2,7 @@ package com.example.calculator
 
 class UpdateEquation {
 
-    private val symbols = mutableListOf<String>("%","/","X","-","+")
+    private val symbols = mutableListOf<String>("%","/","x","-","+")
 
     fun canAdd(value : String, equation : String) : Boolean {
         if (equation.isEmpty()) {
@@ -16,7 +16,8 @@ class UpdateEquation {
                         || (lastValue == "(" && symbols.contains(value))
                         || (lastValue == "." && symbols.contains(value))
                         || (lastValue == "." && (value == "(" || value == ")"))
-                        ) -> false
+                        || (lastValue == "/" && (lastValue.toIntOrNull() == 0))
+                ) -> false
 
                 else -> true
             }
@@ -49,5 +50,13 @@ class UpdateEquation {
                 ""
             }
         }
+    }
+
+    fun canGetAnswer(equation: String) : Boolean {
+        val contentArray = equation.trim().split("\\s".toRegex())
+        return contentArray.size == 3
+                && contentArray[0].toDoubleOrNull() != null
+                && symbols.contains(contentArray[1])
+                && contentArray[2].toDoubleOrNull() != null
     }
 }

@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 class CalculatorViewModel : ViewModel(){
     private val _equation = mutableStateOf("")
     private val updateEquation = UpdateEquation()
+    private val parseEquation = ParseEquation()
+
     val equation : State<String> = _equation
 
     fun clearEquation() {
@@ -23,14 +25,18 @@ class CalculatorViewModel : ViewModel(){
 
     fun updateEquation(value: String) {
         val num = value.toIntOrNull()
-        val valueToAppend : String = if (value == ".") {
-            "."
+        if (value == ".") {
+            _equation.value = _equation.value + "."
         } else if (num != null) {
-            value
+            _equation.value = _equation.value + value
         } else {
-            " $value "
+            if (updateEquation.canGetAnswer(_equation.value)) {
+                _equation.value = parseEquation.solve(equation.value) + " $value "
+            } else {
+                _equation.value = _equation.value + " $value "
+            }
+
         }
-        _equation.value = _equation.value + valueToAppend
     }
 
     fun canAdd(value: String) : Boolean {
@@ -39,11 +45,11 @@ class CalculatorViewModel : ViewModel(){
     }
 
     fun getAnswer() {
-        _equation.value = "Answer"
+        _equation.value = parseEquation.solve(_equation.value)
     }
 
     fun backSpace() {
-        _equation.value = _equation.value.trim().dropLast(1)
+        _equation.value = _equation.value.trim().dropLast(1).trim()
     }
 
 }
