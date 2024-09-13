@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 class CalculatorViewModel : ViewModel(){
     private val _equation = mutableStateOf("")
     private val updateEquation = UpdateEquation()
-    private val parseEquation = ParseEquation()
 
     val equation : State<String> = _equation
 
@@ -19,7 +18,11 @@ class CalculatorViewModel : ViewModel(){
         // check last added bracket and equation accordingly
         val bracket = updateEquation.getBracket(_equation.value)
         if (bracket.isNotBlank()) {
-            _equation.value = _equation.value + " $bracket "
+            if (bracket == "(") {
+                _equation.value = _equation.value.trim() + " $bracket "
+            } else {
+                _equation.value = bracket
+            }
         }
     }
 
@@ -30,12 +33,8 @@ class CalculatorViewModel : ViewModel(){
         } else if (num != null) {
             _equation.value = _equation.value + value
         } else {
-            if (updateEquation.canGetAnswer(_equation.value)) {
-                _equation.value = parseEquation.solve(equation.value) + " $value "
-            } else {
-                _equation.value = _equation.value + " $value "
-            }
-
+            _equation.value = updateEquation
+                .getUpdatedEquation(_equation.value, false).trim() + " $value "
         }
     }
 
@@ -45,7 +44,7 @@ class CalculatorViewModel : ViewModel(){
     }
 
     fun getAnswer() {
-        _equation.value = parseEquation.solve(_equation.value)
+        _equation.value = updateEquation.getUpdatedEquation(_equation.value, false)
     }
 
     fun backSpace() {

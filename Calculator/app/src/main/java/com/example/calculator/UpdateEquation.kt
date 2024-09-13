@@ -3,6 +3,8 @@ package com.example.calculator
 class UpdateEquation {
 
     private val symbols = mutableListOf<String>("%","/","x","-","+")
+    private val commonFunctions = CommonFunctions()
+    private val parseEquation = ParseEquation()
 
     fun canAdd(value : String, equation : String) : Boolean {
         if (equation.isEmpty()) {
@@ -45,18 +47,43 @@ class UpdateEquation {
             } else if (str.last().toString() == "(") {
                 "("
             } else if (str.last().toString().toIntOrNull() != null || !stack.isEmpty()){
-                ")"
+                getUpdatedEquation(equation, true)
             } else {
                 ""
             }
         }
     }
 
-    fun canGetAnswer(equation: String) : Boolean {
-        val contentArray = equation.trim().split("\\s".toRegex())
-        return contentArray.size == 3
+    fun getUpdatedEquation(equation: String, isClosingBracket : Boolean) : String {
+        val contentList = getContentList(equation)
+        return if (contentList.isEmpty()) {
+            equation
+        } else {
+            val answer = parseEquation.solve(contentList)
+            val lastOpeningBracketIndex = equation.lastIndexOf("(")
+            if (lastOpeningBracketIndex != -1) {
+                val index = when {
+                    isClosingBracket -> lastOpeningBracketIndex
+                    else -> lastOpeningBracketIndex + 1
+                }
+                equation.substring(0, index) + answer
+            } else {
+                answer
+            }
+        }
+    }
+
+    private fun getContentList(equation: String) : List<String> {
+        val contentArray = commonFunctions.getContentArray(equation)
+            .trim()
+            .split("\\s".toRegex())
+        return if (contentArray.size == 3
                 && contentArray[0].toDoubleOrNull() != null
                 && symbols.contains(contentArray[1])
-                && contentArray[2].toDoubleOrNull() != null
+                && contentArray[2].toDoubleOrNull() != null) {
+            contentArray
+        } else {
+            emptyList<String>()
+        }
     }
 }
