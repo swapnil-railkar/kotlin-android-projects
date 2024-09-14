@@ -6,6 +6,10 @@ class UpdateEquation {
     private val commonFunctions = CommonFunctions()
     private val parseEquation = ParseEquation()
 
+    /**
+     *  This method verifies current input against last added input
+     *  to make sure that equation doesn't end up in illegal state.
+     */
     fun canAdd(value : String, equation : String) : Boolean {
         if (equation.isEmpty()) {
             return value.toIntOrNull() != null
@@ -26,8 +30,12 @@ class UpdateEquation {
         }
 
     }
-    
-    fun getBracket(equation: String) : String {
+
+    /**
+     *  This function parses the input equation and returns opening bracket
+     *  or answer till last opening bracket.
+     */
+    fun getUpdatedValueForBracket(equation: String) : String {
 
         if (equation.isEmpty()) {
             return "("
@@ -54,6 +62,12 @@ class UpdateEquation {
         }
     }
 
+    /**
+     *  This function gets answer of the equation and updates the equation accordingly.
+     *  If the equation getting solved is bracketed equation then return value will be
+     *  "equation value until opening bracket + answer of bracketed equation"
+     *  else whole equation will be replaced by answer.
+     */
     fun getUpdatedEquation(equation: String, isClosingBracket : Boolean) : String {
         val contentList = getContentList(equation)
         return if (contentList.isEmpty()) {
@@ -73,6 +87,10 @@ class UpdateEquation {
         }
     }
 
+    /**
+     *  This function returns List of type list[0] = num1, list[1] = operator list[2] = num2
+     *  or empty list other wise.
+     */
     private fun getContentList(equation: String) : List<String> {
         val contentArray = commonFunctions.getContentArray(equation)
             .trim()

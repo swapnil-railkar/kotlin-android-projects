@@ -29,15 +29,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+/**
+ *  This function is responsible for UI of the application.
+ */
 @Composable
 fun Calculator() {
-
     val calculatorViewModel : CalculatorViewModel = viewModel()
 
     Column(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End
     ) {
+
+        /**
+         *  Text field to show equation.
+         */
         Text(
             text = calculatorViewModel.equation.value,
             color = Color.Black,
@@ -46,6 +52,9 @@ fun Calculator() {
             modifier = Modifier.padding(end = 10.dp),
         )
 
+        /**
+         *  Backspace button.
+         */
         IconButton(onClick = {
             calculatorViewModel.backSpace()
         }) {
@@ -53,6 +62,9 @@ fun Calculator() {
         }
 
 
+        /**
+         *  Row of buttons for calculating operations.
+         */
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,6 +120,11 @@ fun Calculator() {
 
 }
 
+/**
+ *  This is composable to show row of buttons.
+ *  values : values to be shown on button
+ *  calculatorViewModel: CalculatorViewModel
+ */
 @Composable
 fun ButtonRow(
     values : List<String>,
@@ -126,6 +143,12 @@ fun ButtonRow(
     }
 }
 
+/**
+ *  This function handles onClick operation of buttons.
+ *  value : value of button which is clicked.
+ *  calculatorViewModel : CalculatorViewModel obj
+ *  context : local context.
+ */
 fun updateEquation(
     value : String,
     calculatorViewModel : CalculatorViewModel,
@@ -144,6 +167,12 @@ fun updateEquation(
     }
 }
 
+/**
+ *  This composable defines how a button should look like.
+ *  text : text to show on button.
+ *  onClick : function to execute on click operation
+ *  isSymbol : whether the text is symbol(true) or number(false).
+ */
 @Composable
 fun CalculatorButton(
     text : String,

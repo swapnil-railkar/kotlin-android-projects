@@ -2,7 +2,10 @@ package com.example.calculator
 
 class ParseEquation {
 
-    // Eq -> "num1 op num2"
+    /**
+     *  This function accepts List of type list[0] = num1, list[1] = operator list[2] = num2
+     *  and returns calculated value.
+     */
     fun solve(contentArray: List<String>): String {
         val num1 = contentArray[0].trim().toDoubleOrNull() ?: 0.0
         val operator = contentArray[1].trim()
@@ -11,6 +14,9 @@ class ParseEquation {
         return applyOperation(num1, num2, operator).toString()
     }
 
+    /**
+     *  This function applies the operation and returns calculated value.
+     */
     private fun applyOperation(num1 : Double, num2 : Double, operator : String) : Double {
         return when (operator) {
             "+" -> num1 + num2
