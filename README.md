@@ -40,7 +40,18 @@
    
 4. **Recipe app**
    It is a practice project for demonstrating how to fetch data using retrofit apis and display on UI.
-   Uses TheMealDB's api
+   Uses TheMealDB's api. Use this repo for retrofit imports
+
+   Specs :
+   minSdk = 24
+   targetSdk = 34
+   compileSdk = 34
+   jvmTarget = "1.8"
+   kotlinCompilerExtensionVersion = "1.5.1"
+
+5. **Location app**
+   It is a practice project for demonstrating how to location apis and display on UI. This repo can be
+   used to get location and viewModel imports.
 
    Specs :
    minSdk = 24
