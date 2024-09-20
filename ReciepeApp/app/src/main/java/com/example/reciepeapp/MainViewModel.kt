@@ -7,13 +7,14 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import java.lang.Error
 
-data class RecipeState (
-    val loading : Boolean = true,
-    val categories: List<Category> = emptyList(),
-    val error: String ?= null
-)
 
 class MainViewModel: ViewModel() {
+
+    data class RecipeState (
+        val loading : Boolean = true,
+        val categories: List<Category> = emptyList(),
+        val error: String ?= null
+    )
 
     private val _categorySate = mutableStateOf(RecipeState())
     val categoryState : State<RecipeState> = _categorySate

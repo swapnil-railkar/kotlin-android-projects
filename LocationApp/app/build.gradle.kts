@@ -1,15 +1,14 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-parcelize")
 }
 
 android {
-    namespace = "com.example.reciepeapp"
+    namespace = "com.example.locationapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.reciepeapp"
+        applicationId = "com.example.locationapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -51,12 +50,8 @@ android {
 }
 
 dependencies {
-
     val lifecycle_version = "2.8.5"
     val arch_version = "2.2.0"
-    val nav_version = "2.8.0"
-
-    implementation("androidx.navigation:navigation-compose:$nav_version")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
@@ -72,12 +67,11 @@ dependencies {
     // Saved state module for ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
 
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")  // Optional, for JSON serialization
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    // Google location services
+    implementation ("com.google.android.gms:play-services-location:21.3.0")
 
-    // Images
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    // Google Maps service
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.5")

@@ -1,4 +1,4 @@
-package com.example.reciepeapp
+package com.example.locationapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,24 +9,34 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-import com.example.reciepeapp.ui.theme.ReciepeAppTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.locationapp.ui.theme.LocationAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ReciepeAppTheme {
+            val locationViewModel : LocationViewModel = viewModel()
+            LocationAppTheme {
                 // A surface container using the 'background' color from the theme
-                val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RecipeApp(navController)
+                    MyApp(locationViewModel)
                 }
             }
         }
     }
+}
+
+@Composable
+fun MyApp(viewModel: LocationViewModel) {
+    val context = LocalContext.current
+    val locationUtils = LocationUtils(context)
+
+    LocationDisplay(locationUtils = locationUtils, locationViewModel = viewModel, context = context)
+
 }
