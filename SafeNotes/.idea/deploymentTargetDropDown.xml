@@ -2,6 +2,15 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="AddEditScreenPreview">
+        <State />
+      </entry>
+      <entry key="HomePreview">
+        <State />
+      </entry>
+      <entry key="NotesAppBarPreview">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>
