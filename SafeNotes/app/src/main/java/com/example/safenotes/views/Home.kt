@@ -1,7 +1,9 @@
 package com.example.safenotes.views
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +39,10 @@ import com.example.safenotes.data.DummyNotes
 import com.example.safenotes.data.Note
 import com.example.safenotes.navigation.Screens
 import kotlinx.coroutines.CoroutineScope
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.Divider
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage(
@@ -45,6 +51,13 @@ fun HomePage(
     val scaffoldState : ScaffoldState = rememberScaffoldState()
     val coroutineScope : CoroutineScope = rememberCoroutineScope()
     val notesList = remember { mutableStateOf(DummyNotes.notesList) }
+    val drawerItems = listOf<String>(
+        stringResource(id = R.string.set_default_password),
+        stringResource(id = R.string.reset_default_password),
+        stringResource(id = R.string.reset_recovery_question)
+    )
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             NotesAppBar(
@@ -65,6 +78,29 @@ fun HomePage(
                     contentDescription = "Add note",
                     tint = Color.White
                 )
+            }
+        },
+        scaffoldState = scaffoldState,
+        drawerContent = {
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.h5,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+            )
+            LazyColumn(modifier = Modifier.padding(16.dp)) {
+                items(drawerItems) {
+                    item: String ->
+                    DrawerItem(
+                        title = item,
+                        onClickTitle = {
+                            Toast.makeText(context, "$item clicked", Toast.LENGTH_LONG).show()
+                            coroutineScope.launch {
+                                scaffoldState.drawerState.close()
+                            }
+                        }
+                    )
+                }
             }
         }
     ) {
@@ -117,6 +153,22 @@ private fun NoteItem(
             }
 
         }
+    }
+}
+
+@Composable
+private fun DrawerItem(
+    title: String,
+    onClickTitle: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onClickTitle() }
+    ) {
+        Text(text = title)
+        Divider(modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
     }
 }
 

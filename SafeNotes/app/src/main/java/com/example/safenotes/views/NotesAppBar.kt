@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 fun NotesAppBar(
     title : String,
     state : ScaffoldState,
-    scope: CoroutineScope
+    scope : CoroutineScope
 ) {
     TopAppBar(
         title = { Text(text = title) },
