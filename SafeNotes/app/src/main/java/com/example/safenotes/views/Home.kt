@@ -42,6 +42,7 @@ import kotlinx.coroutines.CoroutineScope
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Divider
 import androidx.compose.ui.platform.LocalContext
+import com.example.safenotes.views.popups.OpenNote
 import kotlinx.coroutines.launch
 
 @Composable
@@ -115,14 +116,11 @@ fun HomePage(
                     NoteItem(
                         note = item,
                         onDeleteItem = {
-                            //TODO Replace it with delete query
+                            //TODO Replace it with delete pop up
                             notesList.value =
                                 notesList.value.filter { note -> note.id != item.id }
                         },
-                        onOpenNote = {
-                            navController
-                                .navigate(Screens.AddEditScreen.route + "/${item.id}")
-                        }
+                        navController = navController
                     )
             }
         }
@@ -133,13 +131,14 @@ fun HomePage(
 private fun NoteItem(
     note : Note,
     onDeleteItem : () -> Unit,
-    onOpenNote : () -> Unit
+    navController: NavController
 ) {
+    val openNotePopUp = remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-            .clickable { onOpenNote() },
+            .clickable { openNotePopUp.value = true },
         elevation = 10.dp,
         backgroundColor = Color.White
     ) {
@@ -153,6 +152,10 @@ private fun NoteItem(
             }
 
         }
+    }
+
+    if (openNotePopUp.value) {
+        OpenNote(note = note, navController = navController, openNotePopUp)
     }
 }
 
@@ -168,7 +171,9 @@ private fun DrawerItem(
             .clickable { onClickTitle() }
     ) {
         Text(text = title)
-        Divider(modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+        Divider(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp))
     }
 }
 
