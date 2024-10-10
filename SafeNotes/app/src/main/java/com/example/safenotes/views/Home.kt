@@ -30,28 +30,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.safenotes.R
-import com.example.safenotes.data.DummyNotes
 import com.example.safenotes.data.Note
 import com.example.safenotes.navigation.Screens
 import kotlinx.coroutines.CoroutineScope
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Divider
 import androidx.compose.ui.platform.LocalContext
+import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.OpenNote
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage(
-    navController: NavController
+    navController: NavController,
+    viewModel: NotesViewModel
 ) {
     val scaffoldState : ScaffoldState = rememberScaffoldState()
     val coroutineScope : CoroutineScope = rememberCoroutineScope()
-    val notesList = remember { mutableStateOf(DummyNotes.notesList) }
     val drawerItems = listOf<String>(
         stringResource(id = R.string.set_default_password),
         stringResource(id = R.string.reset_default_password),
@@ -111,14 +109,12 @@ fun HomePage(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            items(notesList.value, key = {note: Note -> note.id}) {
+            items(viewModel.getNotesList(), key = {note: Note -> note.id}) {
                 item: Note ->
                     NoteItem(
                         note = item,
                         onDeleteItem = {
-                            //TODO Replace it with delete pop up
-                            notesList.value =
-                                notesList.value.filter { note -> note.id != item.id }
+                            viewModel.deletedNote(item.id)
                         },
                         navController = navController
                     )
@@ -175,10 +171,4 @@ private fun DrawerItem(
             .fillMaxWidth()
             .padding(top = 4.dp))
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePreview() {
-    HomePage(navController = rememberNavController())
 }

@@ -66,7 +66,7 @@ fun OpenNote(
 }
 
 @Composable
-fun QuestionDialogueContent(
+private fun QuestionDialogueContent(
     note: Note,
     navController: NavController,
     context : Context
@@ -122,7 +122,7 @@ private fun AlertDialogContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppDefaultAlertHeader(title = "Enter Password", modifier = Modifier.padding(8.dp))
-        PasswordInput(modifier = Modifier.fillMaxWidth(), password = password)
+        AppDefaultPasswordInput(modifier = Modifier.fillMaxWidth(), password = password)
         AppDefaultButton(
             title = "Enter",
             onClick = {

@@ -11,7 +11,7 @@ data class Note(
 )
 
 object DummyNotes {
-    val notesList = listOf<Note>(
+    var notesList = mutableListOf<Note>(
         Note(
             id = 1L,
             title = "Dummy Title 1",

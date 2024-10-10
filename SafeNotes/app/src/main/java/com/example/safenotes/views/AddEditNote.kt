@@ -1,6 +1,5 @@
 package com.example.safenotes.views
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,31 +21,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.safenotes.R
-import com.example.safenotes.data.DummyNotes
-import com.example.safenotes.data.Note
+import com.example.safenotes.viewModel.NotesViewModel
+import com.example.safenotes.views.popups.SaveNote
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AddEditScreen(
-    id : Long
+    id : Long,
+    viewModel: NotesViewModel,
+    navController: NavController
 ) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
-    val selectedNote: Note? = when {
-        id != 0L -> {
-            DummyNotes.notesList.first { 
-                note ->  note.id == id
-            }
-        }
-        else -> null
-    }
-    val context = LocalContext.current
+    val openSaveNotePopup = remember{ mutableStateOf(false) }
+    val selectedNote = viewModel.getNotedById(id)
     val addEditScaffoldState : ScaffoldState = rememberScaffoldState()
     val addEditCoroutineScope : CoroutineScope = rememberCoroutineScope()
     title = selectedNote?.title ?: stringResource(id = R.string.add_note)
@@ -59,7 +52,12 @@ fun AddEditScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    Toast.makeText(context, "Save note to db", Toast.LENGTH_LONG).show()
+                    if (selectedNote == null) {
+                       openSaveNotePopup.value = true
+                    } else {
+                        viewModel.editNote(id, title, content, selectedNote)
+                    }
+
                 },
                 containerColor = colorResource(id = R.color.app_default_color)
             ) {
@@ -100,11 +98,16 @@ fun AddEditScreen(
                 label = { Text(text = "Description")}
             )
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun AddEditScreenPreview() {
-    AddEditScreen(id = 1L)
+        if (openSaveNotePopup.value) {
+            SaveNote(
+                title = title,
+                content = content,
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+
+    }
 }
