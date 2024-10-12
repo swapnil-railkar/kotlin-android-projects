@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.safenotes.data.DefaultCreds
+import com.example.safenotes.data.DefaultCredentials
 import com.example.safenotes.data.Note
 import com.example.safenotes.navigation.Screens
 import com.example.safenotes.viewModel.NotesViewModel
@@ -87,7 +87,7 @@ private fun NoteCredentialsAlert(
             title = "Save Note",
             onClick = {
                 addAuthToNote(
-                    note = viewModel.getNote(title, content),
+                    note = viewModel.getNote(title, content, false),
                     password = password.value,
                     conformPassword = conformPassword.value,
                     question = selectedQuestion,
@@ -105,16 +105,23 @@ private fun NoteCredentialsAlert(
         AppDefaultTextButton(
             title = "Use Default Password",
             onClick = {
-                addAuthToNote(
-                    note = viewModel.getNote(title, content),
-                    password = DefaultCreds.credentials.password,
-                    conformPassword = DefaultCreds.credentials.password,
-                    question = DefaultCreds.credentials.recoveryQuestion,
-                    answer = DefaultCreds.credentials.answer,
-                    viewModel = viewModel,
-                    context = context,
-                    navController = navController
-                )
+                val defaultCreds : DefaultCredentials? = viewModel.getDefaultCreds()
+                if (defaultCreds == null) {
+                    Toast.makeText(context,"Default credentials are not configured",
+                            Toast.LENGTH_LONG).show()
+                } else {
+                    addAuthToNote(
+                        note = viewModel.getNote(title, content, true),
+                        password = defaultCreds.password,
+                        conformPassword = defaultCreds.password,
+                        question = defaultCreds.recoveryQuestion,
+                        answer = defaultCreds.answer,
+                        viewModel = viewModel,
+                        context = context,
+                        navController = navController
+                    )
+                }
+
             },
             modifier = Modifier.fillMaxWidth().padding(2.dp)
         )
@@ -133,14 +140,7 @@ fun addAuthToNote(
     context: Context,
     navController: NavController
 ){
-    val passErrors = viewModel.verifyPasswords(password, conformPassword)
-    val answerErrors = viewModel.verifyAnswer(question, answer)
-
-    val errorMsg : String? = when {
-        passErrors != null -> passErrors
-        answerErrors != null -> answerErrors
-        else -> null
-    }
+   val errorMsg = verifyCreds(password, conformPassword, question, answer, viewModel)
 
     if (errorMsg == null) {
         val finalNote = note.copy(

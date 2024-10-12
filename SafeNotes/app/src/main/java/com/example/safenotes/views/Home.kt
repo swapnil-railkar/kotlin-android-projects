@@ -38,9 +38,12 @@ import com.example.safenotes.navigation.Screens
 import kotlinx.coroutines.CoroutineScope
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Divider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.OpenNote
+import com.example.safenotes.views.popups.SetDefaultCreds
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,6 +59,7 @@ fun HomePage(
         stringResource(id = R.string.reset_recovery_question)
     )
     val context = LocalContext.current
+    var drawerItemToOpen by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -93,7 +97,7 @@ fun HomePage(
                     DrawerItem(
                         title = item,
                         onClickTitle = {
-                            Toast.makeText(context, "$item clicked", Toast.LENGTH_LONG).show()
+                            drawerItemToOpen = item
                             coroutineScope.launch {
                                 scaffoldState.drawerState.close()
                             }
@@ -119,6 +123,12 @@ fun HomePage(
                         navController = navController
                     )
             }
+        }
+
+        when(drawerItemToOpen) {
+            stringResource(id = R.string.set_default_password) ->
+                SetDefaultCreds(viewModel = viewModel)
+            else -> Toast.makeText(context, "Not implemented yet", Toast.LENGTH_LONG).show()
         }
     }
 }

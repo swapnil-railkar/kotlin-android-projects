@@ -17,11 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.safenotes.data.DummyNotes
 import com.example.safenotes.data.Note
 import com.example.safenotes.navigation.Screens
 
@@ -145,13 +142,4 @@ private fun AlertDialogContent(
             modifier = Modifier.fillMaxWidth()
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun OpenNotePopUpPreview() {
-    val openDialog = remember {
-        mutableStateOf(true)
-    }
-    OpenNote(note = DummyNotes.notesList[0], rememberNavController(), openDialog)
 }

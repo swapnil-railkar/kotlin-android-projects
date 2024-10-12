@@ -1,27 +1,44 @@
 package com.example.safenotes.viewModel
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.safenotes.data.DummyNotes
+import com.example.safenotes.data.DefaultCredentials
 import com.example.safenotes.data.Note
 
 class NotesViewModel: ViewModel() {
-    private var _notesList = DummyNotes.notesList
-    private val dummyPass = "abcxyz"
-    private val recoveryQuestion = "Favourite Sports club"
-    private val answer = "liverpool"
+    private var _notesList : MutableList<Note> = mutableListOf()
+    private var dummyPass = "abcxyz"
+    private var recoveryQuestion = "Favourite Sports club"
+    private var answer = "liverpool"
+    private var defaultCreds : MutableState<DefaultCredentials> = mutableStateOf(
+        DefaultCredentials(
+            id = -1L,
+            password = "",
+            recoveryQuestion = "",
+            answer = ""
+        )
+    )
+
 
     fun getNotesList() : List<Note> {
         return _notesList
     }
 
-    fun getNote(title: String, content: String): Note {
+    fun getNote(title: String, content: String, usesDefaultPass: Boolean): Note {
+        if (usesDefaultPass) {
+            dummyPass = defaultCreds.value.password
+            recoveryQuestion = defaultCreds.value.recoveryQuestion
+            answer = defaultCreds.value.answer
+        }
         return Note(
-            id = DummyNotes.notesList.size + 1L,
+            id = _notesList.size + 1L,
             title = title,
             content = content,
             recoveryQuestion = recoveryQuestion,
             answer = answer,
-            password = dummyPass
+            password = dummyPass,
+            usesDefaults = usesDefaultPass
         )
     }
 
@@ -59,7 +76,6 @@ class NotesViewModel: ViewModel() {
         }
     }
 
-    // return null if no error else send error msg.
     fun verifyPasswords(pass: String, confirmPass: String): String? {
         return when {
             pass.isEmpty() -> "Enter Password"
@@ -74,6 +90,39 @@ class NotesViewModel: ViewModel() {
             question.isEmpty() -> "Select recovery question"
             answer.isEmpty() -> "Provide answer"
             else -> null
+        }
+    }
+
+    fun getDefaultCreds() : DefaultCredentials? {
+        return if (defaultCreds.value.id == -1L) {
+            null
+        } else {
+            defaultCreds.value
+        }
+    }
+
+    fun setDefaultCreds(pass: String, recoveryQuestion: String, answer: String) {
+        defaultCreds.value = DefaultCredentials(
+            password = pass,
+            recoveryQuestion = recoveryQuestion,
+            answer = answer
+        )
+    }
+
+    fun updateDefaultPass(newPass: String) {
+        _notesList.filter {
+            it.usesDefaults
+        }.map {
+            it.password = newPass
+        }
+    }
+
+    fun updateRecoveryInfo(question: String, answer: String) {
+        _notesList.filter {
+            it.usesDefaults
+        }.map {
+            it.recoveryQuestion = question
+            it.answer = answer
         }
     }
 }

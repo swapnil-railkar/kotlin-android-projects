@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.safenotes.R
 import com.example.safenotes.data.DefaultCreds
+import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
 fun AppDefaultPasswordInput(
@@ -149,3 +150,19 @@ fun AppDefaultDropDownMenu(
     }
 }
 
+fun verifyCreds(
+    password: String,
+    conformPassword: String,
+    question: String,
+    answer: String,
+    viewModel: NotesViewModel
+): String? {
+    val passErrors = viewModel.verifyPasswords(password, conformPassword)
+    val answerErrors = viewModel.verifyAnswer(question, answer)
+
+    return when {
+        passErrors != null -> passErrors
+        answerErrors != null -> answerErrors
+        else -> null
+    }
+}
