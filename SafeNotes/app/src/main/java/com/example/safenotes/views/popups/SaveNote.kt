@@ -58,6 +58,7 @@ private fun NoteCredentialsAlert(
     var selectedQuestion by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
     val context = LocalContext.current
+    var openDefaultCredsAlert by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.wrapContentSize(),
@@ -109,6 +110,7 @@ private fun NoteCredentialsAlert(
                 if (defaultCreds == null) {
                     Toast.makeText(context,"Default credentials are not configured",
                             Toast.LENGTH_LONG).show()
+                    openDefaultCredsAlert = true
                 } else {
                     addAuthToNote(
                         note = viewModel.getNote(title, content, true),
@@ -123,9 +125,15 @@ private fun NoteCredentialsAlert(
                 }
 
             },
-            modifier = Modifier.fillMaxWidth().padding(2.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp)
         )
 
+    }
+
+    if (openDefaultCredsAlert) {
+        SetDefaultCreds(viewModel = viewModel)
     }
 
 }

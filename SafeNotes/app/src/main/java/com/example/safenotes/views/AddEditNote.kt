@@ -7,17 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +25,6 @@ import androidx.navigation.NavController
 import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.SaveNote
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AddEditScreen(
@@ -40,14 +36,12 @@ fun AddEditScreen(
     var content by remember { mutableStateOf("") }
     val openSaveNotePopup = remember{ mutableStateOf(false) }
     val selectedNote = viewModel.getNotedById(id)
-    val addEditScaffoldState : ScaffoldState = rememberScaffoldState()
-    val addEditCoroutineScope : CoroutineScope = rememberCoroutineScope()
     title = selectedNote?.title ?: stringResource(id = R.string.add_note)
     content = selectedNote?.content ?: ""
     
     Scaffold(
         topBar = {
-            NotesAppBar(title = title, state = addEditScaffoldState, scope = addEditCoroutineScope)
+            NotesAppBar(title = title, viewModel = viewModel)
         },
         floatingActionButton = {
             FloatingActionButton(

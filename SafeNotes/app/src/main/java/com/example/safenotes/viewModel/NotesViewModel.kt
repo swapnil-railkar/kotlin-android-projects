@@ -48,9 +48,7 @@ class NotesViewModel: ViewModel() {
     }
 
     fun deletedNote(id: Long) {
-        _notesList.removeAll {
-            it.id == id
-        }
+        _notesList = _notesList.filter { it.id != id }.toMutableList()
     }
 
     fun editNote(id: Long, title: String, content: String, note: Note) {

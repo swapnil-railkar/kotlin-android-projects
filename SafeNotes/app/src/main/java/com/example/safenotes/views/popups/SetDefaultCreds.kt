@@ -90,12 +90,7 @@ private fun updateDefaults(
     val errorMsg = verifyCreds(password, confirmedPass, question, answer, viewModel)
 
     if (errorMsg == null) {
-        if (viewModel.getDefaultCreds() != null) {
-            Toast.makeText(context, "Default credentials are already set",
-                Toast.LENGTH_LONG).show()
-        } else {
-            viewModel.setDefaultCreds(password, question, answer)
-        }
+        viewModel.setDefaultCreds(password, question, answer)
     } else {
         Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
     }

@@ -1,9 +1,7 @@
 package com.example.safenotes.views
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -35,16 +32,8 @@ import androidx.navigation.NavController
 import com.example.safenotes.R
 import com.example.safenotes.data.Note
 import com.example.safenotes.navigation.Screens
-import kotlinx.coroutines.CoroutineScope
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material3.Divider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.OpenNote
-import com.example.safenotes.views.popups.SetDefaultCreds
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage(
@@ -52,21 +41,12 @@ fun HomePage(
     viewModel: NotesViewModel
 ) {
     val scaffoldState : ScaffoldState = rememberScaffoldState()
-    val coroutineScope : CoroutineScope = rememberCoroutineScope()
-    val drawerItems = listOf<String>(
-        stringResource(id = R.string.set_default_password),
-        stringResource(id = R.string.reset_default_password),
-        stringResource(id = R.string.reset_recovery_question)
-    )
-    val context = LocalContext.current
-    var drawerItemToOpen by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             NotesAppBar(
                 title = stringResource(id = R.string.app_name),
-                state = scaffoldState,
-                scope = coroutineScope
+                viewModel = viewModel
             )
         },
         floatingActionButton = {
@@ -83,29 +63,7 @@ fun HomePage(
                 )
             }
         },
-        scaffoldState = scaffoldState,
-        drawerContent = {
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.h5,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(start = 4.dp, top = 8.dp)
-            )
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
-                items(drawerItems) {
-                    item: String ->
-                    DrawerItem(
-                        title = item,
-                        onClickTitle = {
-                            drawerItemToOpen = item
-                            coroutineScope.launch {
-                                scaffoldState.drawerState.close()
-                            }
-                        }
-                    )
-                }
-            }
-        }
+        scaffoldState = scaffoldState
     ) {
 
         LazyColumn(
@@ -123,12 +81,6 @@ fun HomePage(
                         navController = navController
                     )
             }
-        }
-
-        when(drawerItemToOpen) {
-            stringResource(id = R.string.set_default_password) ->
-                SetDefaultCreds(viewModel = viewModel)
-            else -> Toast.makeText(context, "Not implemented yet", Toast.LENGTH_LONG).show()
         }
     }
 }
@@ -162,23 +114,5 @@ private fun NoteItem(
 
     if (openNotePopUp.value) {
         OpenNote(note = note, navController = navController, openNotePopUp)
-    }
-}
-
-@Composable
-private fun DrawerItem(
-    title: String,
-    onClickTitle: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onClickTitle() }
-    ) {
-        Text(text = title)
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp))
     }
 }
