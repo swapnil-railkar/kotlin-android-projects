@@ -20,8 +20,10 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -65,18 +67,20 @@ fun HomePage(
         },
         scaffoldState = scaffoldState
     ) {
-
+        var items by remember { mutableStateOf(viewModel.getNotesList()) }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
-            items(viewModel.getNotesList(), key = {note: Note -> note.id}) {
+
+            items(items, key = {note: Note -> note.id}) {
                 item: Note ->
                     NoteItem(
                         note = item,
                         onDeleteItem = {
                             viewModel.deletedNote(item.id)
+                            items = viewModel.getNotesList()
                         },
                         navController = navController
                     )

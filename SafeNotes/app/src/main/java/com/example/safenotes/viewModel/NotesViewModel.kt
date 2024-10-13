@@ -108,6 +108,9 @@ class NotesViewModel: ViewModel() {
     }
 
     fun updateDefaultPass(newPass: String) {
+        defaultCreds.value = defaultCreds.value.copy(
+            password = newPass
+        )
         _notesList.filter {
             it.usesDefaults
         }.map {
@@ -116,6 +119,10 @@ class NotesViewModel: ViewModel() {
     }
 
     fun updateRecoveryInfo(question: String, answer: String) {
+        defaultCreds.value = defaultCreds.value.copy(
+            recoveryQuestion = question,
+            answer = answer
+        )
         _notesList.filter {
             it.usesDefaults
         }.map {

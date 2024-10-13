@@ -20,6 +20,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
+import com.example.safenotes.views.popups.EditDefaultPasswordAlert
+import com.example.safenotes.views.popups.ResetRecoveryQuestionAlert
 import com.example.safenotes.views.popups.SetDefaultCreds
 
 @Composable
@@ -69,8 +71,18 @@ fun NotesAppBar(
             }
         }
         stringResource(id = R.string.reset_default_password) ->
-            Toast.makeText(context, "Not implemented yet", Toast.LENGTH_LONG).show()
+            if (viewModel.getDefaultCreds() == null) {
+                Toast.makeText(context, "Default credentials are not configured",
+                    Toast.LENGTH_LONG).show() 
+            } else {
+                EditDefaultPasswordAlert(viewModel = viewModel)
+            }
         stringResource(id = R.string.reset_recovery_question) ->
-            Toast.makeText(context, "Not implemented yet", Toast.LENGTH_LONG).show()
+            if (viewModel.getDefaultCreds() == null) {
+                Toast.makeText(context, "Default credentials are not configured",
+                    Toast.LENGTH_LONG).show()
+            } else {
+                ResetRecoveryQuestionAlert(viewModel = viewModel)
+            }
     }
 }
