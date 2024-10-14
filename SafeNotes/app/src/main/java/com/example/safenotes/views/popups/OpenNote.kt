@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.AlertDialog
@@ -76,8 +76,12 @@ private fun QuestionDialogueContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AppDefaultAlertHeader(title = "Enter Password", modifier = Modifier.padding(8.dp))
+        AppDefaultAlertHeader(title = "Enter Password")
+
         Text(text = note.recoveryQuestion)
+        Spacer(modifier = Modifier.padding(top = 8.dp))
+
+
         TextField(
             value = answer.value,
             onValueChange = {
@@ -85,6 +89,8 @@ private fun QuestionDialogueContent(
             },
             label = { Text(text = "Answer")}
         )
+        Spacer(modifier = Modifier.padding(top = 8.dp))
+
         AppDefaultButton(
             title = "Enter",
             onClick = {
@@ -96,8 +102,7 @@ private fun QuestionDialogueContent(
                             Toast.LENGTH_LONG).show()
                     answer.value = ""
                 }
-            },
-            modifier = Modifier.fillMaxWidth().padding(2.dp)
+            }
         )
     }
 }
@@ -118,8 +123,8 @@ private fun AlertDialogContent(
             .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AppDefaultAlertHeader(title = "Enter Password", modifier = Modifier.padding(8.dp))
-        AppDefaultPasswordInput(modifier = Modifier.fillMaxWidth(), password = password)
+        AppDefaultAlertHeader(title = "Enter Password")
+        AppDefaultPasswordInput(password = password, placeHolder = "Password")
         AppDefaultButton(
             title = "Enter",
             onClick = {
@@ -131,15 +136,11 @@ private fun AlertDialogContent(
                             Toast.LENGTH_LONG).show()
                     password.value = ""
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp, end = 4.dp, top = 8.dp)
+            }
         )
         AppDefaultTextButton(
             title = "Forgot Password",
-            onClick = { openQuestionDialogue.value = true },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { openQuestionDialogue.value = true }
         )
     }
 }

@@ -2,19 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="AddEditScreenPreview">
-        <State />
-      </entry>
       <entry key="DrawerItemPreview">
         <State />
       </entry>
-      <entry key="HomePreview">
+      <entry key="EditDefaultPasswordAlertPreview">
         <State />
       </entry>
       <entry key="OpenNotePopUpPreview">
         <State />
       </entry>
       <entry key="OpenNotePopUpPreview (1)">
+        <State />
+      </entry>
+      <entry key="ResetRecoveryQuestionAlertPreview">
         <State />
       </entry>
       <entry key="app">

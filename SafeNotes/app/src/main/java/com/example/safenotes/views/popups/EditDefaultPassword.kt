@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -16,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
@@ -29,14 +32,7 @@ fun EditDefaultPasswordAlert(
         AlertDialog(
             onDismissRequest = { openAlert.value = false },
             buttons = {},
-            title = {
-                AppDefaultAlertHeader(
-                    title = "Reset Default Password",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp)
-                )
-            },
+            title = {},
             text = {
                 AlertViewContent(
                     viewModel = viewModel
@@ -62,35 +58,28 @@ private fun AlertViewContent(viewModel: NotesViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AppDefaultPasswordInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
-            password = newPass
-        )
-        AppDefaultPasswordInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
-            password = confirmNewPass
-        )
-        Text(text = question, modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp))
+        AppDefaultAlertHeader(title = "Reset Default Password")
+
+        AppDefaultPasswordInput(password = newPass, placeHolder = "Password")
+
+        AppDefaultPasswordInput(password = confirmNewPass, placeHolder = "Confirm Password")
+
+        Text(text = question, modifier = Modifier.wrapContentSize())
+
         TextField(
             value = answer.value,
             onValueChange = {answer.value = it},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp)
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.padding(top = 8.dp))
+
         AppDefaultButton(
             title = "Reset Password",
             onClick = {
                 verifyAndUpdatePassword(viewModel, newPass.value, confirmNewPass.value,
                     answer.value, context)
-            },
-            modifier = Modifier.fillMaxWidth().padding(top =  4.dp)
+            }
         )
     }
 }
@@ -114,4 +103,12 @@ private fun verifyAndUpdatePassword(
     } else {
         Toast.makeText(context, passErrors, Toast.LENGTH_LONG).show()
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditDefaultPasswordAlertPreview() {
+    val viewModel : NotesViewModel = viewModel()
+    viewModel.setDefaultCreds("1234","abc","xyz")
+    EditDefaultPasswordAlert(viewModel = viewModel)
 }

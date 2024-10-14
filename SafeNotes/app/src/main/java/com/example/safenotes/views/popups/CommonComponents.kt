@@ -1,6 +1,8 @@
 package com.example.safenotes.views.popups
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,15 +38,16 @@ import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
 fun AppDefaultPasswordInput(
-    modifier: Modifier,
-    password: MutableState<String>
+    password: MutableState<String>,
+    placeHolder: String
 ) {
     val passVisible = remember { mutableStateOf(false) }
     TextField(
-        modifier = modifier,
+        modifier = Modifier
+            .fillMaxWidth(),
         value = password.value,
         singleLine = true,
-        placeholder = { Text(text = "Password") },
+        placeholder = { Text(text = placeHolder) },
         onValueChange = {
             password.value = it
         },
@@ -60,16 +63,16 @@ fun AppDefaultPasswordInput(
             }
         }
     )
+    Spacer(modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable
 fun AppDefaultTextButton(
     title : String,
-    onClick : () -> Unit,
-    modifier: Modifier
+    onClick : () -> Unit
 ) {
     TextButton(
-        modifier = modifier,
+        modifier = Modifier.wrapContentSize(),
         onClick = { onClick() }
     ) {
         Text(
@@ -77,35 +80,36 @@ fun AppDefaultTextButton(
             color = colorResource(id = R.color.app_default_color)
         )
     }
+    Spacer(modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable
 fun AppDefaultAlertHeader(
-    title : String,
-    modifier: Modifier
+    title : String
 ) {
     Text(
         text = title,
         fontWeight = FontWeight.ExtraBold,
-        modifier = modifier
+        modifier = Modifier.wrapContentSize()
     )
+    Spacer(modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable
 fun AppDefaultButton(
     title : String,
-    onClick: () -> Unit,
-    modifier: Modifier
+    onClick: () -> Unit
 ) {
     Button(
         onClick = { onClick() },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(id = R.color.app_default_color)
         )
     ) {
         Text(text = title, color = Color.White)
     }
+    Spacer(modifier = Modifier.padding(top = 8.dp))
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -148,6 +152,7 @@ fun AppDefaultDropDownMenu(
             }
         }
     }
+    Spacer(modifier = Modifier.padding(top = 8.dp))
 }
 
 fun verifyCreds(

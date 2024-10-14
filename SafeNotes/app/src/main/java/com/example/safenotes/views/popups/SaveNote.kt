@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -68,9 +69,9 @@ private fun NoteCredentialsAlert(
         val password = remember { mutableStateOf("") }
         val conformPassword = remember { mutableStateOf("") }
 
-        AppDefaultAlertHeader(title = "Set Password", modifier = Modifier.padding(2.dp))
-        AppDefaultPasswordInput(modifier = Modifier.padding(4.dp), password = password)
-        AppDefaultPasswordInput(modifier = Modifier.padding(4.dp), password = conformPassword)
+        AppDefaultAlertHeader(title = "Set Password")
+        AppDefaultPasswordInput(password = password, placeHolder = "Password")
+        AppDefaultPasswordInput(password = conformPassword, placeHolder = "Confirm Password")
         AppDefaultDropDownMenu(
             onSelectValue = {
                 selectedQuestion = it
@@ -83,7 +84,7 @@ private fun NoteCredentialsAlert(
                 answer = it
             }
         )
-
+        Spacer(modifier = Modifier.padding(top = 8.dp))
         AppDefaultButton(
             title = "Save Note",
             onClick = {
@@ -97,10 +98,7 @@ private fun NoteCredentialsAlert(
                     context = context,
                     navController = navController
                 )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
+            }
         )
 
         AppDefaultTextButton(
@@ -124,10 +122,7 @@ private fun NoteCredentialsAlert(
                     )
                 }
 
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(2.dp)
+            }
         )
 
     }

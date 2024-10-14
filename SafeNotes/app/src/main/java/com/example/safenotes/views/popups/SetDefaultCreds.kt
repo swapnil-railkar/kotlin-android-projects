@@ -2,7 +2,9 @@ package com.example.safenotes.views.popups
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -46,7 +49,9 @@ private fun AlertDialogueContent(
     openAlert: MutableState<Boolean>
 ) {
     Column(
-        modifier = Modifier.wrapContentSize()
+        modifier = Modifier.wrapContentSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val password = remember { mutableStateOf("") }
         val confirmedPass = remember { mutableStateOf("") }
@@ -54,28 +59,23 @@ private fun AlertDialogueContent(
         var answer by remember { mutableStateOf("") }
         val context = LocalContext.current
 
-        AppDefaultAlertHeader(title = "Set Default Password", modifier = Modifier.padding(2.dp))
-        AppDefaultPasswordInput(modifier = Modifier
-            .padding(2.dp)
-            .fillMaxWidth(),
-            password = password)
-        AppDefaultPasswordInput(modifier = Modifier
-            .padding(2.dp)
-            .fillMaxWidth(),
-            password = confirmedPass)
+        AppDefaultAlertHeader(title = "Set Default Password")
+        AppDefaultPasswordInput(password = password, placeHolder = "Password")
+        AppDefaultPasswordInput(password = confirmedPass, placeHolder = "Confirm Password")
         AppDefaultDropDownMenu(onSelectValue = {question = it})
         TextField(value = answer, onValueChange = {answer = it},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(2.dp),
             label = {Text(text = "Answer")})
+        Spacer(modifier = Modifier.padding(top = 8.dp))
         AppDefaultButton(title = "Set Password",
             onClick = {
                 updateDefaults(password.value, confirmedPass.value, question, answer,
                 viewModel, context)
                 openAlert.value = false
-            },
-            modifier = Modifier.fillMaxWidth().padding(2.dp))
+            }
+        )
     }
 }
 
