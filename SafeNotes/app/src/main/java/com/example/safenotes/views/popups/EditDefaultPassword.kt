@@ -11,15 +11,18 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
@@ -69,7 +72,9 @@ private fun AlertViewContent(viewModel: NotesViewModel) {
         TextField(
             value = answer.value,
             onValueChange = {answer.value = it},
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults
+                .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
         )
 
         Spacer(modifier = Modifier.padding(top = 8.dp))

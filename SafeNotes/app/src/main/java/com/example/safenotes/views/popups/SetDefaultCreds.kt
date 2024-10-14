@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -20,7 +21,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
@@ -67,7 +70,10 @@ private fun AlertDialogueContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(2.dp),
-            label = {Text(text = "Answer")})
+            label = {Text(text = "Answer")},
+            colors = TextFieldDefaults
+                .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
+        )
         Spacer(modifier = Modifier.padding(top = 8.dp))
         AppDefaultButton(title = "Set Password",
             onClick = {

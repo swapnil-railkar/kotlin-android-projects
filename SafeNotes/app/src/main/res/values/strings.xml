@@ -1,7 +1,17 @@
 <resources>
+    <!-- Screens -->
     <string name="app_name">SafeNotes</string>
     <string name = "add_note">Add Note</string>
+
+    <!-- Menu items -->
     <string name="set_default_password">Set Default Password</string>
     <string name="reset_default_password">Reset Default Password</string>
     <string name="reset_recovery_question">Reset Recovery Question</string>
+
+    <!-- Recovery questions -->
+    <string name="recovery_question_one">Favourite athlete</string>
+    <string name="recovery_question_two">Favourite celebrity</string>
+    <string name="recovery_question_three">Favourite Sports club</string>
+    <string name="recovery_question_four">My hobby</string>
+
 </resources>

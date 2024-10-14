@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,8 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.safenotes.R
 import com.example.safenotes.data.DefaultCredentials
 import com.example.safenotes.data.Note
 import com.example.safenotes.navigation.Screens
@@ -82,7 +85,9 @@ private fun NoteCredentialsAlert(
             value = answer,
             onValueChange = {
                 answer = it
-            }
+            },
+            colors = TextFieldDefaults
+                .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
         )
         Spacer(modifier = Modifier.padding(top = 8.dp))
         AppDefaultButton(

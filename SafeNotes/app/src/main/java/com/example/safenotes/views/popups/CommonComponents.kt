@@ -11,6 +11,7 @@ import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.IconButton
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -27,13 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.safenotes.R
-import com.example.safenotes.data.DefaultCreds
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
@@ -61,7 +62,9 @@ fun AppDefaultPasswordInput(
             IconButton(onClick = { passVisible.value = !passVisible.value }) {
                 Icon(painter = image, contentDescription = "show password")
             }
-        }
+        },
+        colors = TextFieldDefaults
+            .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
     )
     Spacer(modifier = Modifier.padding(top = 8.dp))
 }
@@ -119,9 +122,17 @@ fun AppDefaultDropDownMenu(
 ) {
     var selectedOption by remember { mutableStateOf("Select recovery question") }
     var expanded by remember { mutableStateOf(false) }
+    val recoveryQuestions = listOf<String>(
+        stringResource(id = R.string.recovery_question_one),
+        stringResource(id = R.string.recovery_question_two),
+        stringResource(id = R.string.recovery_question_three),
+        stringResource(id = R.string.recovery_question_four)
+    )
 
     Box(
-        modifier = Modifier.wrapContentSize().padding(4.dp)
+        modifier = Modifier
+            .wrapContentSize()
+            .padding(4.dp)
     ) {
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -138,7 +149,7 @@ fun AppDefaultDropDownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ){
-                DefaultCreds.recoveryQuestions.forEach {
+                recoveryQuestions.forEach {
                     option: String ->
                     DropdownMenuItem(
                         text = { Text(text = option) },

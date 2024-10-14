@@ -8,6 +8,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FloatingActionButton
@@ -77,7 +78,9 @@ fun AddEditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 16.dp),
-                label = { Text(text = "Title") }
+                label = { Text(text = "Title") },
+                colors = TextFieldDefaults
+                    .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
             )
 
             // to input description
@@ -89,7 +92,9 @@ fun AddEditScreen(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 16.dp)
                     .fillMaxSize(),
-                label = { Text(text = "Description")}
+                label = { Text(text = "Description")},
+                colors = TextFieldDefaults
+                    .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
             )
         }
 
