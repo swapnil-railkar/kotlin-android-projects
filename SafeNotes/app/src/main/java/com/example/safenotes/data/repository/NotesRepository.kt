@@ -33,4 +33,9 @@ class NotesRepository(private val notesDao: NoteDao) {
     suspend fun updateDefaultRecoveryQuestionAnswer(question: String, answer: String) {
         notesDao.updateDefaultRecoveryQuestionAnswer(question, answer)
     }
+
+    fun searchNoteByTitle(title: String): Flow<List<Note>> {
+        val arg = "%$title%"
+        return notesDao.getNoteByTitleLike(arg)
+    }
 }

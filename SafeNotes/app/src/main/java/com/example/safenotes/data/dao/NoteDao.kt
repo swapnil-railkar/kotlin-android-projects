@@ -33,4 +33,9 @@ abstract class NoteDao {
         value = "update `note` set `recoveryQuestion` = :question, `answer` = :answer"
             + " where `usesDefaults` = true")
     abstract suspend fun updateDefaultRecoveryQuestionAnswer(question: String, answer: String)
+
+    @Query(
+        value = "select * from `note` where `title` like :title"
+    )
+    abstract fun getNoteByTitleLike(title: String): Flow<List<Note>>
 }

@@ -2,6 +2,7 @@ package com.example.safenotes.views
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,19 +11,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -42,13 +48,34 @@ fun HomePage(
     viewModel: NotesViewModel
 ) {
     val scaffoldState : ScaffoldState = rememberScaffoldState()
+    var searchText by remember { mutableStateOf("") }
+    val notesList = viewModel.fetchNotes(searchText).collectAsState(initial = listOf())
 
     Scaffold(
         topBar = {
-            NotesAppBar(
-                title = stringResource(id = R.string.app_name),
-                viewModel = viewModel
-            )
+            Column {
+                NotesAppBar(
+                    title = stringResource(id = R.string.app_name),
+                    viewModel = viewModel
+                )
+                // Search field
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { search ->
+                        searchText = search
+                    },
+                    label = { Text(text = "Search")},
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search Note")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    colors = TextFieldDefaults
+                        .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color)),
+                    singleLine = true
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -66,14 +93,13 @@ fun HomePage(
         },
         scaffoldState = scaffoldState
     ) {
-        val items = viewModel.getNotesList().collectAsState(initial = listOf())
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
 
-            items(items.value, key = {note: Note -> note.id}) {
+            items(items = notesList.value, key = {note: Note -> note.id}) {
                 item: Note ->
                     NoteItem(
                         note = item,

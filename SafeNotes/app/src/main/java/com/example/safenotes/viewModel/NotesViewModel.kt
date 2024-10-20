@@ -27,8 +27,12 @@ class NotesViewModel(
     }
 
 
-    fun getNotesList() : Flow<List<Note>> {
-        return notes
+    fun fetchNotes(title: String) : Flow<List<Note>> {
+        return if (title.isEmpty() || title.isBlank()) {
+            notes
+        } else {
+            notesRepository.searchNoteByTitle(title)
+        }
     }
 
     fun addNote(note: Note) {
