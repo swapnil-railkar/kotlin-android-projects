@@ -19,15 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.safenotes.R
+import com.example.safenotes.data.entity.DefaultCredentials
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
 fun EditDefaultPasswordAlert(
     viewModel: NotesViewModel,
+    defaultCredentials: DefaultCredentials
 ) {
     val openAlert = remember{ mutableStateOf(true) }
     
@@ -38,7 +38,8 @@ fun EditDefaultPasswordAlert(
             title = {},
             text = {
                 AlertViewContent(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    defaultCredentials = defaultCredentials
                 )
             }
         )
@@ -47,11 +48,11 @@ fun EditDefaultPasswordAlert(
 }
 
 @Composable
-private fun AlertViewContent(viewModel: NotesViewModel) {
+private fun AlertViewContent(viewModel: NotesViewModel, defaultCredentials: DefaultCredentials) {
     val newPass = remember { mutableStateOf("") }
     val confirmNewPass = remember { mutableStateOf("") }
     val answer = remember { mutableStateOf("") }
-    val question = viewModel.getDefaultCreds()!!.recoveryQuestion
+    val question = defaultCredentials.recoveryQuestion
     val context = LocalContext.current
 
     Column(
@@ -82,14 +83,15 @@ private fun AlertViewContent(viewModel: NotesViewModel) {
         AppDefaultButton(
             title = "Reset Password",
             onClick = {
-                verifyAndUpdatePassword(viewModel, newPass.value, confirmNewPass.value,
-                    answer.value, context)
+                verifyAndUpdatePassword(defaultCredentials,viewModel, newPass.value,
+                    confirmNewPass.value, answer.value, context)
             }
         )
     }
 }
 
 private fun verifyAndUpdatePassword(
+    defaultCredentials: DefaultCredentials,
     viewModel: NotesViewModel,
     newPass: String,
     confirmNewPass: String,
@@ -99,8 +101,8 @@ private fun verifyAndUpdatePassword(
     val passErrors = viewModel.verifyPasswords(newPass, confirmNewPass)
 
     if (passErrors == null) {
-        if (answer.lowercase().trim() == viewModel.getDefaultCreds()!!.answer.lowercase().trim()) {
-            viewModel.updateDefaultPass(newPass)
+        if (answer.lowercase().trim() == defaultCredentials.answer.lowercase().trim()) {
+            viewModel.updateDefaultPass(newPass, defaultCredentials)
             Toast.makeText(context, "Default password updated", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(context, "Answer is not correct", Toast.LENGTH_LONG).show()
@@ -108,12 +110,4 @@ private fun verifyAndUpdatePassword(
     } else {
         Toast.makeText(context, passErrors, Toast.LENGTH_LONG).show()
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun EditDefaultPasswordAlertPreview() {
-    val viewModel : NotesViewModel = viewModel()
-    viewModel.setDefaultCreds("1234","abc","xyz")
-    EditDefaultPasswordAlert(viewModel = viewModel)
 }

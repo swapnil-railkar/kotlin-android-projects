@@ -27,7 +27,7 @@ import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
-fun SetDefaultCreds(
+fun SetDefaultCredentials(
     viewModel: NotesViewModel
 ) {
     val openAlert = remember { mutableStateOf(true) }
@@ -96,7 +96,7 @@ private fun updateDefaults(
     val errorMsg = verifyCreds(password, confirmedPass, question, answer, viewModel)
 
     if (errorMsg == null) {
-        viewModel.setDefaultCreds(password, question, answer)
+        viewModel.setDefaultCredentials(password, question, answer)
     } else {
         Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
     }

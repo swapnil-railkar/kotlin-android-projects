@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +37,13 @@ fun AddEditScreen(
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     val openSaveNotePopup = remember{ mutableStateOf(false) }
-    val selectedNote = viewModel.getNotedById(id)
-    title = selectedNote?.title ?: stringResource(id = R.string.add_note)
-    content = selectedNote?.content ?: ""
+    val selectedNote = viewModel.getNotedById(id).collectAsState(initial = null)
+    if (selectedNote.value == null) {
+        title = stringResource(id = R.string.add_note)
+    } else {
+        title = selectedNote.value!!.title
+        content = selectedNote.value!!.content
+    }
     
     Scaffold(
         topBar = {
@@ -47,10 +52,10 @@ fun AddEditScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if (selectedNote == null) {
+                    if (selectedNote.value == null) {
                        openSaveNotePopup.value = true
                     } else {
-                        viewModel.editNote(id, title, content, selectedNote)
+                        viewModel.editNote(title, content, selectedNote.value!!)
                     }
 
                 },

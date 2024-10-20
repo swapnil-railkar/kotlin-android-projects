@@ -12,6 +12,7 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,8 +24,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.safenotes.R
-import com.example.safenotes.data.DefaultCredentials
-import com.example.safenotes.data.Note
+import com.example.safenotes.data.entity.Note
 import com.example.safenotes.navigation.Screens
 import com.example.safenotes.viewModel.NotesViewModel
 
@@ -61,16 +61,18 @@ private fun NoteCredentialsAlert(
 ) {
     var selectedQuestion by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+    val conformPassword = remember { mutableStateOf("") }
+
     val context = LocalContext.current
-    var openDefaultCredsAlert by remember { mutableStateOf(false) }
+    var openDefaultCredentialsAlert by remember { mutableStateOf(false) }
+    val defaultCredentials = viewModel.getDefaultCredentials().collectAsState(initial = null)
 
     Column(
         modifier = Modifier.wrapContentSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val password = remember { mutableStateOf("") }
-        val conformPassword = remember { mutableStateOf("") }
 
         AppDefaultAlertHeader(title = "Set Password")
         AppDefaultPasswordInput(password = password, placeHolder = "Password")
@@ -94,7 +96,9 @@ private fun NoteCredentialsAlert(
             title = "Save Note",
             onClick = {
                 addAuthToNote(
-                    note = viewModel.getNote(title, content, false),
+                    title = title,
+                    content = content,
+                    usesDefaults = false,
                     password = password.value,
                     conformPassword = conformPassword.value,
                     question = selectedQuestion,
@@ -109,18 +113,19 @@ private fun NoteCredentialsAlert(
         AppDefaultTextButton(
             title = "Use Default Password",
             onClick = {
-                val defaultCreds : DefaultCredentials? = viewModel.getDefaultCreds()
-                if (defaultCreds == null) {
+                if (defaultCredentials.value == null) {
                     Toast.makeText(context,"Default credentials are not configured",
                             Toast.LENGTH_LONG).show()
-                    openDefaultCredsAlert = true
+                    openDefaultCredentialsAlert = true
                 } else {
                     addAuthToNote(
-                        note = viewModel.getNote(title, content, true),
-                        password = defaultCreds.password,
-                        conformPassword = defaultCreds.password,
-                        question = defaultCreds.recoveryQuestion,
-                        answer = defaultCreds.answer,
+                        title = title,
+                        content = content,
+                        usesDefaults = true,
+                        password = defaultCredentials.value!!.password,
+                        conformPassword = defaultCredentials.value!!.password,
+                        question = defaultCredentials.value!!.recoveryQuestion,
+                        answer = defaultCredentials.value!!.answer,
                         viewModel = viewModel,
                         context = context,
                         navController = navController
@@ -132,14 +137,16 @@ private fun NoteCredentialsAlert(
 
     }
 
-    if (openDefaultCredsAlert) {
-        SetDefaultCreds(viewModel = viewModel)
+    if (openDefaultCredentialsAlert) {
+        SetDefaultCredentials(viewModel = viewModel)
     }
 
 }
 
 fun addAuthToNote(
-    note: Note,
+    title: String,
+    content: String,
+    usesDefaults: Boolean,
     password: String,
     conformPassword: String,
     question: String,
@@ -151,7 +158,10 @@ fun addAuthToNote(
    val errorMsg = verifyCreds(password, conformPassword, question, answer, viewModel)
 
     if (errorMsg == null) {
-        val finalNote = note.copy(
+        val finalNote = Note(
+            title = title,
+            content = content,
+            usesDefaults = usesDefaults,
             password = password,
             recoveryQuestion = question,
             answer = answer

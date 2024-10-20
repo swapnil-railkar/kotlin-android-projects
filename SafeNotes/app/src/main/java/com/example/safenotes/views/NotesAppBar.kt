@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,7 +23,7 @@ import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.EditDefaultPasswordAlert
 import com.example.safenotes.views.popups.ResetRecoveryQuestionAlert
-import com.example.safenotes.views.popups.SetDefaultCreds
+import com.example.safenotes.views.popups.SetDefaultCredentials
 
 @Composable
 fun NotesAppBar(
@@ -31,12 +32,14 @@ fun NotesAppBar(
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
+    val defaultCredentials = viewModel.getDefaultCredentials().collectAsState(initial = null)
     val menuItems = listOf<String>(
         stringResource(id = R.string.set_default_password),
         stringResource(id = R.string.reset_default_password),
         stringResource(id = R.string.reset_recovery_question)
     )
     var menuItemToOpen by remember { mutableStateOf("") }
+
     
     TopAppBar(
         title = { Text(text = title) },
@@ -63,26 +66,32 @@ fun NotesAppBar(
 
     when(menuItemToOpen) {
         stringResource(id = R.string.set_default_password) -> {
-            if (viewModel.getDefaultCreds() == null) {
-                SetDefaultCreds(viewModel = viewModel)
+            if (defaultCredentials.value == null) {
+                SetDefaultCredentials(viewModel = viewModel)
             } else {
                 Toast.makeText(context, "Default credentials are already configured",
                     Toast.LENGTH_LONG).show()
             }
         }
         stringResource(id = R.string.reset_default_password) ->
-            if (viewModel.getDefaultCreds() == null) {
+            if (defaultCredentials.value == null) {
                 Toast.makeText(context, "Default credentials are not configured",
                     Toast.LENGTH_LONG).show() 
             } else {
-                EditDefaultPasswordAlert(viewModel = viewModel)
+                EditDefaultPasswordAlert(
+                    viewModel = viewModel,
+                    defaultCredentials = defaultCredentials.value!!
+                )
             }
         stringResource(id = R.string.reset_recovery_question) ->
-            if (viewModel.getDefaultCreds() == null) {
+            if (defaultCredentials.value == null) {
                 Toast.makeText(context, "Default credentials are not configured",
                     Toast.LENGTH_LONG).show()
             } else {
-                ResetRecoveryQuestionAlert(viewModel = viewModel)
+                ResetRecoveryQuestionAlert(
+                    viewModel = viewModel,
+                    defaultCredentials = defaultCredentials.value!!
+                )
             }
     }
 }

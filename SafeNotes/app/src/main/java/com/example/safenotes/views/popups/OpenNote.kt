@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.safenotes.data.Note
+import com.example.safenotes.data.entity.Note
 import com.example.safenotes.navigation.Screens
 
 @Composable

@@ -20,15 +20,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.safenotes.R
+import com.example.safenotes.data.entity.DefaultCredentials
 import com.example.safenotes.viewModel.NotesViewModel
 
 @Composable
 fun ResetRecoveryQuestionAlert(
-    viewModel: NotesViewModel
+    viewModel: NotesViewModel,
+    defaultCredentials: DefaultCredentials
 ) {
     val openAlert = remember { mutableStateOf(true) }
     
@@ -39,7 +39,8 @@ fun ResetRecoveryQuestionAlert(
             title = {},
             text = {
                 AlertViewContent(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    defaultCredentials = defaultCredentials
                 )
             }
         )
@@ -48,7 +49,8 @@ fun ResetRecoveryQuestionAlert(
 
 @Composable
 private fun AlertViewContent(
-    viewModel: NotesViewModel
+    viewModel: NotesViewModel,
+    defaultCredentials: DefaultCredentials
 ) {
     val password = remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
@@ -76,13 +78,15 @@ private fun AlertViewContent(
         AppDefaultButton(
             title = "Reset Recovery Question",
             onClick = {
-                verifyAndUpdateQuestion(viewModel, question, answer, password.value, context)
+                verifyAndUpdateQuestion(defaultCredentials, viewModel, question, answer,
+                    password.value, context)
             }
         )
     }
 }
 
 fun verifyAndUpdateQuestion(
+    defaultCredentials: DefaultCredentials,
     viewModel: NotesViewModel,
     question: String,
     answer: String,
@@ -92,8 +96,8 @@ fun verifyAndUpdateQuestion(
     val errors = viewModel.verifyAnswer(question, answer)
 
     if (errors == null) {
-        if (password == viewModel.getDefaultCreds()!!.password) {
-            viewModel.updateRecoveryInfo(question, answer)
+        if (password == defaultCredentials.password) {
+            viewModel.updateRecoveryInfo(question, answer, defaultCredentials)
             Toast.makeText(context, "Recovery question updated", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(context, "Incorrect password", Toast.LENGTH_LONG).show()
@@ -101,12 +105,4 @@ fun verifyAndUpdateQuestion(
     } else {
         Toast.makeText(context, errors, Toast.LENGTH_LONG).show()
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ResetRecoveryQuestionAlertPreview() {
-    val viewModel : NotesViewModel = viewModel()
-    viewModel.setDefaultCreds("1234","abc","xyz")
-    ResetRecoveryQuestionAlert(viewModel = viewModel)
 }

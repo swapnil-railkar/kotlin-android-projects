@@ -1,77 +1,54 @@
 package com.example.safenotes.viewModel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.safenotes.data.DefaultCredentials
-import com.example.safenotes.data.Note
+import androidx.lifecycle.viewModelScope
+import com.example.safenotes.data.entity.DefaultCredentials
+import com.example.safenotes.data.entity.Note
+import com.example.safenotes.data.graph.Graph
+import com.example.safenotes.data.repository.DefaultCredentialsRepository
+import com.example.safenotes.data.repository.NotesRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
-class NotesViewModel: ViewModel() {
-    private var _notesList : MutableList<Note> = mutableListOf()
-    private var dummyPass = "abcxyz"
-    private var recoveryQuestion = "Favourite Sports club"
-    private var answer = "liverpool"
-    private var defaultCreds : MutableState<DefaultCredentials> = mutableStateOf(
-        DefaultCredentials(
-            id = -1L,
-            password = "",
-            recoveryQuestion = "",
-            answer = ""
-        )
-    )
+class NotesViewModel(
+    private val notesRepository: NotesRepository = Graph.notesRepository,
+    private val defaultCredentialsRepository: DefaultCredentialsRepository =
+        Graph.defaultCredentialsRepository
+): ViewModel() {
+    private lateinit var defaultCredentials : Flow<DefaultCredentials>
+    private lateinit var notes: Flow<List<Note>>
 
-
-    fun getNotesList() : List<Note> {
-        return _notesList
-    }
-
-    fun getNote(title: String, content: String, usesDefaultPass: Boolean): Note {
-        if (usesDefaultPass) {
-            dummyPass = defaultCreds.value.password
-            recoveryQuestion = defaultCreds.value.recoveryQuestion
-            answer = defaultCreds.value.answer
+    init {
+        viewModelScope.launch {
+            notes = notesRepository.getAllNotes()
+            defaultCredentials = defaultCredentialsRepository.getDefaultPassword()
         }
-        return Note(
-            id = _notesList.size + 1L,
-            title = title,
-            content = content,
-            recoveryQuestion = recoveryQuestion,
-            answer = answer,
-            password = dummyPass,
-            usesDefaults = usesDefaultPass
-        )
     }
 
+
+    fun getNotesList() : Flow<List<Note>> {
+        return notes
+    }
 
     fun addNote(note: Note) {
-        _notesList.add(note)
+        viewModelScope.launch(Dispatchers.IO) { notesRepository.addNote(note) }
     }
 
-    fun deletedNote(id: Long) {
-        _notesList = _notesList.filter { it.id != id }.toMutableList()
+    fun deletedNote(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) { notesRepository.deleteNote(note) }
     }
 
-    fun editNote(id: Long, title: String, content: String, note: Note) {
+    fun editNote(title: String, content: String, note: Note) {
         val editedNote = note.copy(
             title = title,
             content = content
         )
-        _notesList = _notesList.map {
-            if (it.id == id) {
-                editedNote
-            } else{
-                it
-            }
-        }.toMutableList()
+        viewModelScope.launch(Dispatchers.IO) { notesRepository.updateNote(editedNote) }
     }
 
-    fun getNotedById(id: Long): Note? {
-        return when{
-            id != 0L -> _notesList.first {
-                it.id == id
-            }
-            else -> null
-        }
+    fun getNotedById(id: Long): Flow<Note> {
+        return notesRepository.getNoteById(id)
     }
 
     fun verifyPasswords(pass: String, confirmPass: String): String? {
@@ -91,43 +68,41 @@ class NotesViewModel: ViewModel() {
         }
     }
 
-    fun getDefaultCreds() : DefaultCredentials? {
-        return if (defaultCreds.value.id == -1L) {
-            null
-        } else {
-            defaultCreds.value
-        }
+    fun getDefaultCredentials() : Flow<DefaultCredentials> {
+        return defaultCredentials
     }
 
-    fun setDefaultCreds(pass: String, recoveryQuestion: String, answer: String) {
-        defaultCreds.value = DefaultCredentials(
+    fun setDefaultCredentials(pass: String, recoveryQuestion: String, answer: String) {
+        val credentials = DefaultCredentials(
             password = pass,
             recoveryQuestion = recoveryQuestion,
             answer = answer
         )
-    }
 
-    fun updateDefaultPass(newPass: String) {
-        defaultCreds.value = defaultCreds.value.copy(
-            password = newPass
-        )
-        _notesList.filter {
-            it.usesDefaults
-        }.map {
-            it.password = newPass
+        viewModelScope.launch {
+            defaultCredentialsRepository.addDefaultCredentials(credentials)
         }
     }
 
-    fun updateRecoveryInfo(question: String, answer: String) {
-        defaultCreds.value = defaultCreds.value.copy(
+    fun updateDefaultPass(newPass: String, credentials: DefaultCredentials) {
+        val updatedCredentials = credentials.copy(
+            password = newPass
+        )
+
+        viewModelScope.launch {
+            defaultCredentialsRepository.updateDefaultCredentials(updatedCredentials)
+            notesRepository.updateDefaultPassword(newPass)
+        }
+    }
+
+    fun updateRecoveryInfo(question: String, answer: String, credentials: DefaultCredentials) {
+        val updatedCredentials = credentials.copy(
             recoveryQuestion = question,
             answer = answer
         )
-        _notesList.filter {
-            it.usesDefaults
-        }.map {
-            it.recoveryQuestion = question
-            it.answer = answer
+        viewModelScope.launch {
+            defaultCredentialsRepository.updateDefaultCredentials(updatedCredentials)
+            notesRepository.updateDefaultRecoveryQuestionAnswer(question, answer)
         }
     }
 }

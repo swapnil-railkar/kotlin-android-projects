@@ -20,10 +20,9 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -32,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.safenotes.R
-import com.example.safenotes.data.Note
+import com.example.safenotes.data.entity.Note
 import com.example.safenotes.navigation.Screens
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.OpenNote
@@ -54,7 +53,7 @@ fun HomePage(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(Screens.AddEditScreen.route + "/0L")
+                    navController.navigate(Screens.AddEditScreen.route + "/-1L")
                 },
                 containerColor = colorResource(id = R.color.app_default_color)
             ) {
@@ -67,20 +66,19 @@ fun HomePage(
         },
         scaffoldState = scaffoldState
     ) {
-        var items by remember { mutableStateOf(viewModel.getNotesList()) }
+        val items = viewModel.getNotesList().collectAsState(initial = listOf())
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
 
-            items(items, key = {note: Note -> note.id}) {
+            items(items.value, key = {note: Note -> note.id}) {
                 item: Note ->
                     NoteItem(
                         note = item,
                         onDeleteItem = {
-                            viewModel.deletedNote(item.id)
-                            items = viewModel.getNotesList()
+                            viewModel.deletedNote(item)
                         },
                         navController = navController
                     )
