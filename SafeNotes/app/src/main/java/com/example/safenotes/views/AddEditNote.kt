@@ -1,9 +1,13 @@
 package com.example.safenotes.views
 
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
@@ -28,6 +32,16 @@ import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.SaveNote
 
+/**
+ *  This function defines add/edit note screen. If invalid id is passed then it will function as
+ *  add note screen else it will function as edit note screen.
+ *  Hierarchy of components
+ *      > Top Bar (title of note or "Add Note")
+ *      > Title input
+ *      > Content input
+ *      > FAB (Add / edit note)
+ *
+ */
 @Composable
 fun AddEditScreen(
     id : Long,
@@ -96,7 +110,8 @@ fun AddEditScreen(
                 },
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 16.dp)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(state = rememberScrollState()),
                 label = { Text(text = "Description")},
                 colors = TextFieldDefaults
                     .textFieldColors(cursorColor = colorResource(id = R.color.app_default_color))
