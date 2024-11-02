@@ -10,6 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.musicappui.MainViewModel
 import com.example.musicappui.views.AccountView
+import com.example.musicappui.views.Browse
+import com.example.musicappui.views.Home
+import com.example.musicappui.views.Library
 
 @Composable
 fun Navigation(
@@ -19,11 +22,25 @@ fun Navigation(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screens.DrawerScreen.Account.route,
+        startDestination = Screens.BottomScreen.Home.bottomRoute,
         modifier = Modifier.padding(paddingValues)) {
+
+        composable(Screens.BottomScreen.Home.bottomRoute) {
+            Home()
+        }
+
+        composable(Screens.BottomScreen.Browse.bottomRoute) {
+            Browse()
+        }
+
+        composable(Screens.BottomScreen.Library.bottomRoute) {
+            Library()
+        }
+
         composable(Screens.DrawerScreen.Account.route) {
             AccountView()
         }
+
         composable(Screens.DrawerScreen.Subscription.route) {
 
         }

@@ -29,10 +29,10 @@ fun MainView() {
     val scope : CoroutineScope = rememberCoroutineScope()
     val scaffoldState : ScaffoldState = rememberScaffoldState()
 
-    var viewModel : MainViewModel = viewModel()
-    var screen by remember { mutableStateOf(viewModel.currentScreen.value) }
+    val viewModel : MainViewModel = viewModel()
+    val screen by remember { mutableStateOf(viewModel.currentScreen.value) }
 
-    var title = remember { mutableStateOf(screen.title) }
+    val title = remember { mutableStateOf(screen.title) }
     val drawerScreens = listOf<Screens.DrawerScreen>(
         Screens.DrawerScreen.Account,
         Screens.DrawerScreen.AddAccount,
@@ -67,12 +67,11 @@ fun MainView() {
                     )
                 }
             }
-        }
+        },
+        bottomBar = { BottomAppBarUI(currentRoute = screen.route, navController = controller)}
 
     ) {
         Navigation(navController = controller, viewModel = viewModel, paddingValues = it)
-        
-        AccountDialogue(isOpen = isDialogueOpen)
     }
 
 }

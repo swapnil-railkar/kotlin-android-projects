@@ -27,4 +27,28 @@ sealed class Screens(val title: String, val route: String) {
             icon = R.drawable.baseline_person_add_alt_1_24
         )
     }
+
+    sealed class BottomScreen(
+        val bottomTitle: String,
+        val bottomRoute: String,
+        @DrawableRes val icon: Int
+    ){
+        data object Home: BottomScreen(
+            bottomTitle = "Home",
+            bottomRoute = "home",
+            icon = R.drawable.baseline_home_24
+        )
+
+        data object Library: BottomScreen(
+            bottomTitle = "Library",
+            bottomRoute = "library",
+            icon = R.drawable.baseline_library_music_24
+        )
+
+        data object Browse: BottomScreen(
+            bottomTitle = "Browse",
+            bottomRoute = "browse",
+            icon = R.drawable.baseline_album_24
+        )
+    }
 }
