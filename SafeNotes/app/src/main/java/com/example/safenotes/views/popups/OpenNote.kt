@@ -22,12 +22,29 @@ import androidx.navigation.NavController
 import com.example.safenotes.data.entity.Note
 import com.example.safenotes.navigation.Screens
 
+/**
+ *  This functions verifies the credentials given by user and open note if they're correct.
+ *  Hierarchy of components :
+ *  > Alert
+ *      > Header
+ *      > Text field (input password)
+ *      > Button (enter)
+ *      > Forget Password ?
+ *          > Alert
+ *              > Header
+ *              > Text (recovery question)
+ *              > Text field (answer)
+ *              > Button (enter)
+ */
 @Composable
 fun OpenNote(
     note : Note,
     navController : NavController,
     openDialog: MutableState<Boolean>
 ) {
+    // Initially user will be prompted with password alert.
+    // If user chooses to verify credentials via recovery question then this triggered is used to
+    // open recovery question - answer alert
     val openQuestionDialogue = remember { mutableStateOf(false) }
     val context = LocalContext.current
     if (openDialog.value) {

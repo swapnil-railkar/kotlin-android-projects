@@ -12,12 +12,18 @@ import com.example.safenotes.views.AddEditScreen
 import com.example.safenotes.views.HomePage
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+
+/**
+ *  Navigator function initialized with NavHostController and ViewModel.
+ *  Used to navigate between screens.
+ */
 @Composable
 fun NotesNavigator(
     navHostController: NavHostController = rememberNavController(),
     viewModel: NotesViewModel = viewModel()
 ) {
     NavHost(navController = navHostController,
+        // home screen is start screen
         startDestination = Screens.HomeScreen.route
     ) {
         composable(Screens.HomeScreen.route) {

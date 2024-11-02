@@ -24,6 +24,18 @@ import com.example.safenotes.R
 import com.example.safenotes.data.entity.DefaultCredentials
 import com.example.safenotes.viewModel.NotesViewModel
 
+/**
+ *  This function defines Reset Default Password Popup
+ *  Hierarchy of components
+ *      > Title (Reset Default Password)
+ *      > Enter new password
+ *      > Confirm new password
+ *      > Recovery question
+ *      > Answer
+ *      > Confirmation Button
+ *
+ *  Note : Password will not be edited if answer is wrong.
+ */
 @Composable
 fun EditDefaultPasswordAlert(
     viewModel: NotesViewModel,

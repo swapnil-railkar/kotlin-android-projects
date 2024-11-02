@@ -11,9 +11,13 @@ import com.example.safenotes.data.graph.Graph
 import com.example.safenotes.navigation.NotesNavigator
 import com.example.safenotes.ui.theme.SafeNotesTheme
 
+/**
+ *  This is entry point of app.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Graph class is used to initialize room database.
         Graph.provide(this)
         setContent {
             SafeNotesTheme {
@@ -22,6 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    // Call to navigator
                     NotesNavigator()
                 }
             }

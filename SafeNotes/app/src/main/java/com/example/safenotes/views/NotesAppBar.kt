@@ -25,12 +25,24 @@ import com.example.safenotes.views.popups.EditDefaultPasswordAlert
 import com.example.safenotes.views.popups.ResetRecoveryQuestionAlert
 import com.example.safenotes.views.popups.SetDefaultCredentials
 
+/**
+ *  This function defines top bar for application.
+ *  Hierarchy of components :
+ *  >Top App Bar
+ *      > Navigation Icon (more-vert, on tap expands to three options)
+ *          > Set Default Password
+ *          > Reset Default Password
+ *          > Reset Recovery Question
+ *
+ *  Note : more-vert is three vertical dotted lines component
+ */
 @Composable
 fun NotesAppBar(
     title : String,
     viewModel: NotesViewModel
 ) {
     val context = LocalContext.current
+    // trigger to expand more-vert
     var expanded by remember { mutableStateOf(false) }
     val defaultCredentials = viewModel.getDefaultCredentials().collectAsState(initial = null)
     val menuItems = listOf<String>(
@@ -38,6 +50,7 @@ fun NotesAppBar(
         stringResource(id = R.string.reset_default_password),
         stringResource(id = R.string.reset_recovery_question)
     )
+    // variable used to store value of item clicked in more-vert
     var menuItemToOpen by remember { mutableStateOf("") }
 
     
@@ -65,6 +78,8 @@ fun NotesAppBar(
     )
 
     when(menuItemToOpen) {
+        // when user clicks 'Set Default Password' then check whether default credentials are
+        // configured. If not configured then allow user to add credentials else show toast.
         stringResource(id = R.string.set_default_password) -> {
             if (defaultCredentials.value == null) {
                 SetDefaultCredentials(viewModel = viewModel)
@@ -73,6 +88,10 @@ fun NotesAppBar(
                     Toast.LENGTH_LONG).show()
             }
         }
+
+        // when user clicks 'Reset Default Password' or 'Reset Recovery Question'
+        // then check whether default credentials are configured.
+        // If configured then allow user to update credentials else show toast.
         stringResource(id = R.string.reset_default_password) ->
             if (defaultCredentials.value == null) {
                 Toast.makeText(context, "Default credentials are not configured",

@@ -28,6 +28,16 @@ import com.example.safenotes.data.entity.Note
 import com.example.safenotes.navigation.Screens
 import com.example.safenotes.viewModel.NotesViewModel
 
+/**
+ *  This function defines save note pop up. This popup will configure creds for notes
+ *  Hierarchy of components :
+ *      > Enter password
+ *      > Confirm Password
+ *      > Select recovery question
+ *      > Answer
+ *      > Confirmation button
+ *      > Button to use default password
+ */
 @Composable
 fun SaveNote(
     title: String,

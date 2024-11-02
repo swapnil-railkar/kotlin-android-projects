@@ -42,6 +42,15 @@ import com.example.safenotes.navigation.Screens
 import com.example.safenotes.viewModel.NotesViewModel
 import com.example.safenotes.views.popups.OpenNote
 
+/**
+ *  Landing page of application. Hierarchy of components :
+ *  > Top Bar
+ *  > Search field
+ *  > Notes
+ *      > Title
+ *      > Delete
+ *  > FAB
+ */
 @Composable
 fun HomePage(
     navController: NavController,
@@ -49,11 +58,13 @@ fun HomePage(
 ) {
     val scaffoldState : ScaffoldState = rememberScaffoldState()
     var searchText by remember { mutableStateOf("") }
+    //Initially search filter is empty so it will fetch all notes.
     val notesList = viewModel.fetchNotes(searchText).collectAsState(initial = listOf())
 
     Scaffold(
         topBar = {
             Column {
+                // Top Bar
                 NotesAppBar(
                     title = stringResource(id = R.string.app_name),
                     viewModel = viewModel
@@ -78,8 +89,11 @@ fun HomePage(
             }
         },
         floatingActionButton = {
+            // FAB
             FloatingActionButton(
                 onClick = {
+                    // Home > FAB is used to add new note, hence passed -1L as argument.
+                    // (note id starts from 0L)
                     navController.navigate(Screens.AddEditScreen.route + "/-1L")
                 },
                 containerColor = colorResource(id = R.color.app_default_color)
@@ -100,6 +114,7 @@ fun HomePage(
         ) {
 
             items(items = notesList.value, key = {note: Note -> note.id}) {
+                // Note
                 item: Note ->
                     NoteItem(
                         note = item,
@@ -119,6 +134,7 @@ private fun NoteItem(
     onDeleteItem : () -> Unit,
     navController: NavController
 ) {
+    // trigger to open popup to open note
     val openNotePopUp = remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
@@ -132,7 +148,10 @@ private fun NoteItem(
             modifier = Modifier.padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Title of note
             Text(text = note.title, fontWeight = FontWeight.ExtraBold)
+
+            // Delete note button
             IconButton(onClick = { onDeleteItem() }) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete note")
             }

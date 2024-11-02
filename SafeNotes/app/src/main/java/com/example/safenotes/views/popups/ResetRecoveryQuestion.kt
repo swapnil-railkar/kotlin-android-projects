@@ -25,6 +25,16 @@ import com.example.safenotes.R
 import com.example.safenotes.data.entity.DefaultCredentials
 import com.example.safenotes.viewModel.NotesViewModel
 
+/**
+ *  This function defines Reset Recovery question popup
+ *  Hierarchy of components :
+ *      > Enter Password
+ *      > Select Recovery Question
+ *      > Enter Answer
+ *      > Confirmation Button
+ *
+ *  Note : Recovery question will not get updated if password is wrong
+ */
 @Composable
 fun ResetRecoveryQuestionAlert(
     viewModel: NotesViewModel,

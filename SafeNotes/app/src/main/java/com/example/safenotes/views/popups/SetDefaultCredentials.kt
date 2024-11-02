@@ -26,6 +26,16 @@ import androidx.compose.ui.unit.dp
 import com.example.safenotes.R
 import com.example.safenotes.viewModel.NotesViewModel
 
+/**
+ *  This function defines pop up for setting default password.
+ *  Hierarchy of components :
+ *      > Title (Set default password)
+ *      > Enter Password
+ *      > Confirm Password
+ *      > Select Recovery Question
+ *      > Answer
+ *      > Confirm Button (Set Default Password)
+ */
 @Composable
 fun SetDefaultCredentials(
     viewModel: NotesViewModel
