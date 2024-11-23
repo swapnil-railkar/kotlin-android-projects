@@ -20,10 +20,13 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
@@ -43,33 +46,69 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.todoify.data.DummyTask
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.todoify.data.Task
 import com.todoify.topbars.MainScreenTopBar
 import com.todoify.util.TaskState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.todoify.R
+import com.todoify.viewmodel.TaskViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainView() {
-
+fun MainView(
+    taskViewModel: TaskViewModel
+) {
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var searchState by remember { mutableStateOf(false) }
     var searchTitle by remember { mutableStateOf("") }
+    var taskList by remember { mutableStateOf(taskViewModel
+        .getTaskListForMainScreen(dateContext, searchTitle)) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            MainScreenTopBar(
-                onDateChange = {
-                    dateContext = it
-                },
-                onSearchStart = {
-                    searchState = it
+            Column {
+                MainScreenTopBar(
+                    onDateChange = {
+                        dateContext = it
+                        taskList = taskViewModel.getTaskListForMainScreen(dateContext, searchTitle)
+                    },
+                    onSearchStart = {
+                        searchState = it
+                    }
+                )
+
+                if (searchState) {
+                    OutlinedTextField(
+                        value = searchTitle,
+                        onValueChange = {
+                            input ->
+                            searchTitle = input
+                            taskList = taskViewModel.getTaskListForMainScreen(dateContext, searchTitle)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp),
+                        maxLines = 1,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = colorResource(id = R.color.app_default_color)
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { searchTitle = "" }) {
+                                Icon(imageVector = Icons.Default.Clear,
+                                    contentDescription = "clear")
+                            }
+                        }
+                    )
                 }
-            )
+            }
+
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -92,12 +131,18 @@ fun MainView() {
         }
         
         LazyColumn(modifier = Modifier.padding(it)) {
-            items(items = DummyTask.dummyTasks, key = {item: Task ->  item.id}) {
+
+            items(items = taskList,
+                key = {item: Task ->  item.id}) {
                 task ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = {
-                        if (it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart) {
-                            /* Todo Delete the task */
+                        dismissValue ->
+                        if (dismissValue == DismissValue.DismissedToEnd
+                            || dismissValue == DismissValue.DismissedToStart) {
+                            taskViewModel.deleteTask(task, false)
+                            taskList = taskViewModel
+                                .getTaskListForMainScreen(dateContext, searchTitle)
                         }
                         true
                     }
@@ -110,8 +155,18 @@ fun MainView() {
                     dismissContent = {
                         TaskItem(
                             task = task,
-                            onMarkImportant = {},
-                            onMarkComplete = { /*TODO*/ }
+                            onMarkImportant = {
+                                important ->
+                                val updatedTask = task.copy(isImportant = important)
+                                taskViewModel.updateTask(updatedTask)
+                                taskList = taskViewModel
+                                    .getTaskListForMainScreen(dateContext, searchTitle)
+                            },
+                            onMarkComplete = {
+                                taskViewModel.deleteTask(task, true)
+                                taskList = taskViewModel
+                                    .getTaskListForMainScreen(dateContext, searchTitle)
+                            }
                         )
                     }
                 )
@@ -126,6 +181,7 @@ private fun TaskItem(
     onMarkImportant: (Boolean) -> Unit,
     onMarkComplete: () -> Unit
 ) {
+    var starColor by remember{ mutableStateOf(Color.LightGray) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,8 +208,10 @@ private fun TaskItem(
                     Text(text = "From : ${getFormattedDate(task.createdAt)}",
                         color = Color.DarkGray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "To : ${getFormattedDate(task.completeBy)}",
-                        color = Color.DarkGray, fontSize = 12.sp)
+                    if (task.completeBy != null) {
+                        Text(text = "To : ${getFormattedDate(task.completeBy)}",
+                            color = Color.DarkGray, fontSize = 12.sp)
+                    }
                 }
             }
 
@@ -163,7 +221,8 @@ private fun TaskItem(
                     .padding(top = 4.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                val starColor = if(task.isImportant) Color.Yellow else Color.LightGray
+
+                starColor = if(task.isImportant) Color.Yellow else Color.LightGray
                 IconButton(onClick = { onMarkImportant(!task.isImportant) }) {
                     Icon(imageVector = Icons.Default.Star,
                         contentDescription = "mark important", tint = starColor)
@@ -190,7 +249,8 @@ private fun getFormattedDate(date: LocalDate?): String {
 @Composable
 @Preview(showBackground = true)
 fun MainViewPreview() {
-    MainView()
+    val taskViewModel: TaskViewModel = viewModel()
+    MainView(taskViewModel)
 }
 
 @Composable
