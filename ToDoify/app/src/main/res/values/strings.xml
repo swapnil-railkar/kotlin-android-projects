@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">ToDoify</string>
+    
+    <!-- Top bar constants !-->
+    <string name="main_screen">Today</string> 
+    <string name="history_screen">History</string>
+
+    <!-- more-vert constants !-->
+    <string name="notification_settings">Notification Settings</string>
+    <string name="history">History</string>
+    <string name="clear_all_tasks">Clear All Tasks</string>
 </resources>
