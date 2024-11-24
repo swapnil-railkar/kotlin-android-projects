@@ -9,4 +9,10 @@
     <string name="notification_settings">Notification Settings</string>
     <string name="history">History</string>
     <string name="clear_all_tasks">Clear All Tasks</string>
+
+    <!-- pop-up constants !-->
+    <string name="remove_all_tasks">Remove all tasks?</string>
+    <string name="alert_content_main_screen">
+        This action cannot be reversed.
+    </string>
 </resources>

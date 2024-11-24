@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ import com.todoify.util.TaskState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.todoify.R
+import com.todoify.commons.RemoveAllTasks
 import com.todoify.viewmodel.TaskViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -62,6 +64,7 @@ fun MainView(
 ) {
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var searchState by remember { mutableStateOf(false) }
+    var showRemoveAllAlert by remember { mutableStateOf(false) }
     var searchTitle by remember { mutableStateOf("") }
     var taskList by remember { mutableStateOf(taskViewModel
         .getTaskListForMainScreen(dateContext, searchTitle)) }
@@ -77,6 +80,9 @@ fun MainView(
                     },
                     onSearchStart = {
                         searchState = it
+                    },
+                    onClearAllItems = {
+                        showRemoveAllAlert = true
                     }
                 )
 
@@ -128,6 +134,18 @@ fun MainView(
             ) {
                 TextField(value = searchTitle, onValueChange = { input -> searchTitle = input })
             }
+        }
+
+        if (showRemoveAllAlert) {
+            RemoveAllTasks(
+                content = stringResource(id = R.string.alert_content_main_screen),
+                onConfirmation = {
+                    taskViewModel.removeAllTasks(taskList)
+                    showRemoveAllAlert = false
+                    taskList = taskViewModel.getTaskListForMainScreen(dateContext, searchTitle)
+                },
+                onDisMissDialog = {showRemoveAllAlert = false}
+            )
         }
         
         LazyColumn(modifier = Modifier.padding(it)) {
