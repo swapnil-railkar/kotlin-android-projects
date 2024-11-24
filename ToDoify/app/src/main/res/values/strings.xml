@@ -8,6 +8,7 @@
     <!-- more-vert constants !-->
     <string name="notification_settings">Notification Settings</string>
     <string name="history">History</string>
+    <string name="todo_list">Todos</string>
     <string name="clear_all_tasks">Clear All Tasks</string>
 
     <!-- pop-up constants !-->

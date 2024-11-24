@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,19 +19,15 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,12 +44,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.todoify.data.Task
-import com.todoify.topbars.MainScreenTopBar
 import com.todoify.util.TaskState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.todoify.R
+import com.todoify.topbars.DefaultTopBar
 import com.todoify.commons.RemoveAllTasks
+import com.todoify.navigation.Screens
 import com.todoify.viewmodel.TaskViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -63,7 +59,6 @@ fun MainView(
     taskViewModel: TaskViewModel
 ) {
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
-    var searchState by remember { mutableStateOf(false) }
     var showRemoveAllAlert by remember { mutableStateOf(false) }
     var searchTitle by remember { mutableStateOf("") }
     var taskList by remember { mutableStateOf(taskViewModel
@@ -73,46 +68,20 @@ fun MainView(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             Column {
-                MainScreenTopBar(
+                DefaultTopBar(
+                    screenContext = Screens.MainScreen.route,
                     onDateChange = {
                         dateContext = it
                         taskList = taskViewModel.getTaskListForMainScreen(dateContext, searchTitle)
                     },
-                    onSearchStart = {
-                        searchState = it
+                    onSearchTitle = {
+                        searchTitle = it
+                        taskList = taskViewModel.getTaskListForMainScreen(dateContext, searchTitle)
                     },
                     onClearAllItems = {
                         showRemoveAllAlert = true
                     }
                 )
-
-                if (searchState) {
-                    OutlinedTextField(
-                        value = searchTitle,
-                        onValueChange = {
-                            input ->
-                            searchTitle = input
-                            taskList = taskViewModel.getTaskListForMainScreen(dateContext, searchTitle)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                        maxLines = 1,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = colorResource(id = R.color.app_default_color)
-                            )
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { searchTitle = "" }) {
-                                Icon(imageVector = Icons.Default.Clear,
-                                    contentDescription = "clear")
-                            }
-                        }
-                    )
-                }
             }
 
         },
@@ -125,16 +94,6 @@ fun MainView(
             }
         }
     ) {
-        if (searchState) {
-            Column(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                TextField(value = searchTitle, onValueChange = { input -> searchTitle = input })
-            }
-        }
 
         if (showRemoveAllAlert) {
             RemoveAllTasks(

@@ -21,17 +21,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.todoify.R
+import com.todoify.navigation.Screens
 
 @Composable
 fun TopBarMoreVert(
+    screenContext: String,
     onClearAllTask: () -> Unit
 ) {
     var openMoreVert by remember { mutableStateOf(false) }
-    val moreVertItems = mapOf(
+    val moreVertItems = mutableMapOf<String, Int>(
         stringResource(id = R.string.notification_settings) to R.drawable.baseline_settings_24,
-        stringResource(id = R.string.history) to R.drawable.baseline_history_24,
         stringResource(id = R.string.clear_all_tasks) to R.drawable.baseline_delete_24
     )
+    if (screenContext == Screens.MainScreen.route) {
+        moreVertItems[stringResource(id = R.string.history)] = R.drawable.baseline_history_24
+    } else if (screenContext == Screens.HistoryScreen.route) {
+        moreVertItems[stringResource(id = R.string.todo_list)] =
+            R.drawable.baseline_format_list_bulleted_24
+    }
     var selectedMoreVertItem by remember { mutableStateOf("") }
 
     IconButton(onClick = { openMoreVert = true }) {
@@ -61,13 +68,19 @@ fun TopBarMoreVert(
         }
     }
 
-    when(selectedMoreVertItem) {
+    when (selectedMoreVertItem) {
         stringResource(id = R.string.notification_settings) -> {
             /* Todo open settings pop up */
         }
+
         stringResource(id = R.string.history) -> {
             /* Todo navigate to history screen */
         }
+
+        stringResource(id = R.string.todo_list) -> {
+            /* Todo navigate to home screen */
+        }
+
         stringResource(id = R.string.clear_all_tasks) -> {
             onClearAllTask()
         }

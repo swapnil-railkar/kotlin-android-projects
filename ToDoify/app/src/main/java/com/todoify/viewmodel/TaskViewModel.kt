@@ -18,23 +18,24 @@ class TaskViewModel : ViewModel() {
 
     fun getTaskListForMainScreen(dateContext: LocalDate, titleSearch: String): List<Task> {
         val taskList = sortTask.getTasksForMainScreen(_taskList, dateContext)
-        refreshList(taskList)
-        if (titleSearch.isBlank() || titleSearch.isEmpty()) {
-            return taskList
-        }
-        return taskList.filter { item: Task ->
-            item.title.contains(titleSearch)
-        }
+        return getFilteredTasks(titleSearch, taskList)
     }
 
     fun getTaskListForHistoryScreen(dateContext: LocalDate, titleSearch: String): List<Task> {
         val taskList = sortTask.getTasksForHistoryScreen(_taskList, dateContext)
-        refreshList(taskList)
-        if (titleSearch.isBlank() || titleSearch.isEmpty()) {
-            return taskList
-        }
-        return taskList.filter { item: Task ->
-            item.title.contains(titleSearch)
+        return getFilteredTasks(titleSearch, taskList)
+    }
+
+    private fun getFilteredTasks(titleSearch: String, taskList: List<Task>): List<Task> {
+        return if (titleSearch.isBlank() || titleSearch.isEmpty()) {
+            refreshList(taskList)
+            taskList
+        } else {
+            taskList.filter { item: Task ->
+                item.title.contains(titleSearch)
+            }
+            refreshList(taskList)
+            taskList
         }
     }
 
