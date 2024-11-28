@@ -3,64 +3,80 @@ package com.todoify.viewmodel
 import androidx.lifecycle.ViewModel
 import com.todoify.data.DummyTask
 import com.todoify.data.Task
+import com.todoify.navigation.Screens
 import com.todoify.util.SortTask
 import com.todoify.util.TaskState
+import com.todoify.util.UserContext
 import java.time.LocalDate
 
 class TaskViewModel : ViewModel() {
 
-    private var _taskList: MutableList<Task> = DummyTask.dummyTasks
+    private var _todoTaskList: MutableList<Task> = DummyTask.dummyTasks
+    private var _historyTaskList: MutableList<Task> = mutableListOf<Task>()
     private val sortTask = SortTask()
 
-    private fun refreshList(taskList: List<Task>) {
-        this._taskList = taskList.toMutableList()
+    private fun refreshList(taskList: List<Task>, userContext: UserContext) {
+        if (userContext.screen == Screens.MainScreen.route) {
+            this._todoTaskList = taskList.toMutableList()
+        } else {
+            this._historyTaskList = taskList.toMutableList()
+        }
+
     }
 
-    fun getTaskListForMainScreen(dateContext: LocalDate, titleSearch: String): List<Task> {
-        val taskList = sortTask.getTasksForMainScreen(_taskList, dateContext)
-        return getFilteredTasks(titleSearch, taskList)
+    fun getTaskListForScreen(userContext: UserContext): List<Task> {
+        val taskList = if (userContext.screen == Screens.MainScreen.route) {
+            sortTask.getTasksForMainScreen(_todoTaskList, userContext.date)
+        } else {
+            sortTask.getTasksForHistoryScreen(_historyTaskList, userContext.date)
+        }
+        return getFilteredTasks(userContext, taskList)
     }
 
-    fun getTaskListForHistoryScreen(dateContext: LocalDate, titleSearch: String): List<Task> {
-        val taskList = sortTask.getTasksForHistoryScreen(_taskList, dateContext)
-        return getFilteredTasks(titleSearch, taskList)
-    }
-
-    private fun getFilteredTasks(titleSearch: String, taskList: List<Task>): List<Task> {
-        return if (titleSearch.isBlank() || titleSearch.isEmpty()) {
-            refreshList(taskList)
+    private fun getFilteredTasks(userContext: UserContext, taskList: List<Task>): List<Task> {
+        return if (userContext.searchInput.isBlank() || userContext.searchInput.isEmpty()) {
+            refreshList(taskList, userContext)
             taskList
         } else {
             taskList.filter { item: Task ->
-                item.title.contains(titleSearch)
+                item.title.contains(userContext.searchInput)
             }
-            refreshList(taskList)
+            refreshList(taskList, userContext)
             taskList
         }
     }
 
-    fun removeAllTasks(tasks: List<Task>) {
+    fun removeAllTasks(tasks: List<Task>, userContext: UserContext) {
         tasks.map { item: Task ->
             item.copy(status = TaskState.REMOVED, removedAt = LocalDate.now())
         }.forEach { item: Task ->
-            updateTask(item)
+            updateTask(item, userContext)
         }
     }
 
-    fun deleteTask(task: Task, isCompleted: Boolean) {
+    fun removeTask(task: Task, isCompleted: Boolean, userContext: UserContext) {
         val taskState = if (isCompleted) TaskState.COMPLETED else TaskState.REMOVED
         val deletedTask = task.copy(
             status = taskState,
             removedAt = LocalDate.now()
         )
-        updateTask(deletedTask)
+        _historyTaskList.add(deletedTask)
+        updateTask(deletedTask, userContext)
     }
 
-    fun updateTask(updatedTask: Task) {
-        _taskList.replaceAll { item: Task ->
+    fun deleteTask(task: Task) {
+        _historyTaskList.remove(task)
+    }
+
+    fun deleteAllTasks() {
+        _historyTaskList.clear()
+    }
+
+    fun updateTask(updatedTask: Task, userContext: UserContext) {
+        _todoTaskList.replaceAll { item: Task ->
             if (item.id == updatedTask.id) updatedTask else item
         }
-        refreshList(_taskList)
+        refreshList(_todoTaskList, userContext)
     }
 
 }

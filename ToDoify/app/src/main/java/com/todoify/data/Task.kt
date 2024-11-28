@@ -57,8 +57,12 @@ object DummyTask {
         // Task 2
         Task(
             id = 3L,
-            title = "ghi",
-            description = null,
+            title = "TTTTTThhhhiiiisssssss iiiiiiiiisssssssss aaaaaaaaa llllllllooooooonnnnnggggg ttttttiiiiitttttttllllllllleeeeeee",
+            description = "Ballast cutlass to go on account transom blow the man down Brethren of the Coast provost trysail hearties Jolly Roger. Tack yardarm wench Spanish Main rope's end lateen sail parley line hands smartly. Ho yard bilged on her anchor clap of thunder doubloon wherry Jack Ketch bucko heave to ahoy.\n" +
+                    "\n" +
+                    "Shiver me timbers killick league fore ahoy hardtack belaying pin clap of thunder bring a spring upon her cable measured fer yer chains. Dance the hempen jig loot provost boom Arr yo-ho-ho long clothes draught aye spike. Weigh anchor yawl swab Gold Road barkadeer Sail ho cog wherry Davy Jones' Locker pressgang.\n" +
+                    "\n" +
+                    "Swab splice the main brace heave to booty jib yard fore flogging fathom aft. Jib topmast careen hempen halter scurvy Jack Tar hardtack hands take a caulk Letter of Marque. Keelhaul Sink me port yo-ho-ho quarter take a caulk red ensign handsomely haul wind draught.",
             createdAt = LocalDate.now(),
             completeBy = null,
             removedAt = null,

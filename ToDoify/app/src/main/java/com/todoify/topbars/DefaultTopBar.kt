@@ -34,7 +34,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun DefaultTopBar(
-    screenContext: String,
     onDateChange: (LocalDate) -> Unit,
     onSearchTitle: (String) -> Unit,
     onClearAllItems: () -> Unit
@@ -67,8 +66,7 @@ fun DefaultTopBar(
                 if (searchState) {
                     OutlinedTextField(
                         value = searchTitle,
-                        onValueChange = {
-                                input ->
+                        onValueChange = { input ->
                             searchTitle = input
                             onSearchTitle(searchTitle)
                         },
@@ -85,8 +83,10 @@ fun DefaultTopBar(
                         },
                         trailingIcon = {
                             androidx.compose.material.IconButton(onClick = { searchTitle = "" }) {
-                                Icon(imageVector = Icons.Default.Clear,
-                                    contentDescription = "clear")
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "clear"
+                                )
                             }
                         }
                     )
@@ -95,9 +95,9 @@ fun DefaultTopBar(
 
         },
         navigationIcon = {
-            TopBarMoreVert(screenContext = screenContext) {
-                onClearAllItems()
-            }
+            TopBarMoreVert(
+                onClearAllTask = { onClearAllItems() }
+            )
         },
         backgroundColor = colorResource(id = R.color.app_default_color)
     )
