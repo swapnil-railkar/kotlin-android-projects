@@ -1,5 +1,4 @@
-1. Main Projects :
-   a. TodoIfy :
+ ###1. TodoIfy :
    A **task management app** designed to help users stay on top of their daily to-dos, prioritize effectively, and maintain a productive workflow. Whether you're juggling personal, work, or recurring tasks, this app simplifies task organization and makes sure nothing slips through the cracks.
 
 ### Key Features:
@@ -20,7 +19,7 @@ I built this app with a focus on **simplicity, productivity**, and **intuitive d
 
 The app is perfect for anyone looking for a **streamlined** way to handle daily tasks, whether for **work, personal projects**, or just staying organized.
 
- b. SafeNotes : 
+ ###2. SafeNotes : 
  This app allows users to store their notes securely, offering the option to assign unique passwords to each note or use a predefined default password for convenience. Notes with unique passwords cannot be accessed via the default password, ensuring maximum security and privacy.
 
 Key features include:
@@ -30,3 +29,5 @@ Room Database: Efficiently stores and manages user data.
 Password Reset and Recovery: Easily regain access if a password is forgotten.
 Planned Enhancements: Future updates will enable users to store images and add drawing capabilities to their notes.
 Designed using MVVM architecture for a clean separation of concerns, and powered by Android Navigation for seamless user experience, this project highlights my skills in modern Android development practices using Android Studio.
+
+### Practice notes are apps developed while learning.
