@@ -46,7 +46,6 @@ import com.todoify.commons.TaskTimeStamps
 import com.todoify.data.Task
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
-import com.todoify.util.TaskState
 import com.todoify.util.UserContext
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
@@ -72,7 +71,6 @@ fun MainView(
         )
     }
 
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -91,8 +89,6 @@ fun MainView(
                     showRemoveAllAlert = true
                 }
             )
-
-
         },
         bottomBar = {
             DefaultBottomBar(
@@ -102,7 +98,7 @@ fun MainView(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*Todo navigate to add/edit screen as add op*/ },
+                onClick = { navController.navigate(Screens.AddEditScreen.route + "/-1L") },
                 backgroundColor = colorResource(id = R.color.app_default_color)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add new task")
@@ -156,6 +152,10 @@ fun MainView(
                                 taskViewModel.removeTask(task, true, userContext)
                                 taskList = taskViewModel
                                     .getTaskListForScreen(userContext)
+                            },
+                            onClick = {
+                                navController.navigate(Screens.AddEditScreen.route
+                                        + "/${task.id}")
                             }
                         )
                     }
@@ -169,14 +169,16 @@ fun MainView(
 private fun TaskItem(
     task: Task,
     onMarkImportant: (Boolean) -> Unit,
-    onMarkComplete: () -> Unit
+    onMarkComplete: () -> Unit,
+    onClick: () -> Unit
 ) {
     var starColor by remember { mutableStateOf(Color.LightGray) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
-            .clickable { /* Todo Navigate to add/edit screen */ },
+            .clickable { onClick() },
         elevation = 10.dp,
         backgroundColor = Color.White
     ) {
@@ -223,24 +225,4 @@ fun MainViewPreview() {
     val taskViewModel: TaskViewModel = viewModel()
     val navController = rememberNavController()
     MainView(taskViewModel, navController = navController)
-}
-
-@Composable
-@Preview(showBackground = true)
-fun TaskItemPreview() {
-    val taskItem = Task(
-        title = "Dummy Test",
-        description = null,
-        createdAt = LocalDate.now(),
-        completeBy = LocalDate.now().plusDays(3),
-        isImportant = false,
-        isDaily = false,
-        status = TaskState.IN_PROGRESS,
-        removedAt = null
-    )
-    TaskItem(
-        task = taskItem,
-        onMarkImportant = {},
-        onMarkComplete = {}
-    )
 }
