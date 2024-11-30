@@ -38,7 +38,7 @@ import com.todoify.R
 import com.todoify.bottombar.DefaultBottomBar
 import com.todoify.commons.RemoveAllTasks
 import com.todoify.commons.TaskTimeStamps
-import com.todoify.data.Task
+import com.todoify.data.entity.Task
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
 import com.todoify.util.TaskState

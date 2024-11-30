@@ -1,17 +1,38 @@
-package com.todoify.data
+package com.todoify.data.entity
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.todoify.util.TaskState
 import java.time.LocalDate
 
+@Entity(tableName = "task")
 data class Task(
-    val id : Long = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id : Long = 0L,
+
+    @ColumnInfo(name = "title")
     val title : String,
+
+    @ColumnInfo(name = "description")
     val description : String?,
+
+    @ColumnInfo(name = "createdAt")
     val createdAt : LocalDate,
+
+    @ColumnInfo(name = "completeBy")
     val completeBy : LocalDate?,
+
+    @ColumnInfo(name = "removedAt")
     val removedAt : LocalDate?,
+
+    @ColumnInfo(name = "isImportant")
     val isImportant : Boolean,
+
+    @ColumnInfo(name = "isDaily")
     val isDaily : Boolean,
+
+    @ColumnInfo(name = "status")
     val status : TaskState
 )
 

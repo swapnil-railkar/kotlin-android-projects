@@ -35,7 +35,7 @@ import androidx.compose.ui.window.Dialog
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.todoify.R
 import com.todoify.commons.Calender
-import com.todoify.data.Task
+import com.todoify.data.entity.Task
 import com.todoify.util.TaskState
 import com.todoify.util.UserContext
 import com.todoify.viewmodel.TaskViewModel

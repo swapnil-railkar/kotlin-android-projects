@@ -1,6 +1,6 @@
 package com.todoify.util
 
-import com.todoify.data.Task
+import com.todoify.data.entity.Task
 import java.time.LocalDate
 class SortTask {
     fun getTasksForMainScreen(taskList: List<Task>, date: LocalDate): List<Task>{

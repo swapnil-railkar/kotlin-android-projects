@@ -1,15 +1,19 @@
 package com.todoify.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.todoify.data.DummyTask
-import com.todoify.data.Task
+import com.todoify.data.entity.DummyTask
+import com.todoify.data.entity.Task
+import com.todoify.data.graph.Graph
+import com.todoify.data.repository.TaskRepository
 import com.todoify.navigation.Screens
 import com.todoify.util.SortTask
 import com.todoify.util.TaskState
 import com.todoify.util.UserContext
 import java.time.LocalDate
 
-class TaskViewModel : ViewModel() {
+class TaskViewModel(
+    private val taskRepository: TaskRepository = Graph.tasksRepository
+) : ViewModel() {
 
     private var _todoTaskList: MutableList<Task> = DummyTask.dummyTasks
     private var _historyTaskList: MutableList<Task> = mutableListOf<Task>()
@@ -30,6 +34,7 @@ class TaskViewModel : ViewModel() {
         _nextId += 1
         return _nextId.toLong()
     }
+
     fun getTaskListForScreen(userContext: UserContext): List<Task> {
         val taskList = if (userContext.screen == Screens.MainScreen.route) {
             _sortTask.getTasksForMainScreen(_todoTaskList, userContext.date)
