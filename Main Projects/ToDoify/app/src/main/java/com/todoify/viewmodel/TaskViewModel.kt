@@ -78,11 +78,14 @@ class TaskViewModel : ViewModel() {
         _historyTaskList.clear()
     }
 
-    fun updateTask(updatedTask: Task, userContext: UserContext) {
-        _todoTaskList.replaceAll { item: Task ->
-            if (item.id == updatedTask.id) updatedTask else item
+    fun updateTask(updatedTask: Task?, userContext: UserContext) {
+        if (updatedTask != null) {
+            _todoTaskList.replaceAll { item: Task ->
+                if (item.id == updatedTask.id) updatedTask else item
+            }
+            refreshList(_todoTaskList, userContext)
         }
-        refreshList(_todoTaskList, userContext)
+
     }
 
     fun getTaskById(id: Long): Task? {

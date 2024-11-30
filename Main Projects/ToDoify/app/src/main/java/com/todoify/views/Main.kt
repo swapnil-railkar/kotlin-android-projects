@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,6 +71,8 @@ fun MainView(
                 .getTaskListForScreen(userContext)
         )
     }
+    var openAddEditTaskDialog by remember { mutableStateOf(false) }
+    var addEditTaskId by remember { mutableLongStateOf(-1L) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -98,13 +101,29 @@ fun MainView(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screens.AddEditScreen.route + "/-1L") },
+                onClick = {
+                    addEditTaskId = -1L
+                    openAddEditTaskDialog = true
+                },
                 backgroundColor = colorResource(id = R.color.app_default_color)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add new task")
             }
         }
     ) {
+
+        if (openAddEditTaskDialog) {
+            AddEditTask(
+                id = addEditTaskId,
+                taskViewModel = taskViewModel,
+                onDismiss = { openAddEditTaskDialog = false },
+                userContext = userContext,
+                onAddEditComplete = {
+                    openAddEditTaskDialog = false
+                    taskList = taskViewModel.getTaskListForScreen(userContext = userContext)
+                }
+            )
+        }
 
         if (showRemoveAllAlert) {
             RemoveAllTasks(
@@ -154,8 +173,8 @@ fun MainView(
                                     .getTaskListForScreen(userContext)
                             },
                             onClick = {
-                                navController.navigate(Screens.AddEditScreen.route
-                                        + "/${task.id}")
+                                addEditTaskId = task.id
+                                openAddEditTaskDialog = true
                             }
                         )
                     }

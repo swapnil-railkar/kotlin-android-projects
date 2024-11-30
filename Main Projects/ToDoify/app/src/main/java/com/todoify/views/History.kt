@@ -95,6 +95,7 @@ fun HistoryView(
                 onConfirmation = {
                     taskViewModel.deleteAllTasks()
                     taskList = taskViewModel.getTaskListForScreen(historyUserContext)
+                    displayRemoveAllAlert = false
                 }
             )
         }

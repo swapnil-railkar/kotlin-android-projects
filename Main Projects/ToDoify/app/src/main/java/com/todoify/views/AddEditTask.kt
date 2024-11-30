@@ -1,28 +1,27 @@
 package com.todoify.views
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,18 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.window.Dialog
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.todoify.R
 import com.todoify.commons.Calender
 import com.todoify.data.Task
-import com.todoify.navigation.Screens
 import com.todoify.util.TaskState
+import com.todoify.util.UserContext
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -51,12 +46,14 @@ import java.time.format.DateTimeFormatter
 fun AddEditTask(
     id: Long,
     taskViewModel: TaskViewModel,
-    navController: NavController
+    userContext: UserContext,
+    onDismiss: () -> Unit,
+    onAddEditComplete: () -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    var description: String? by remember { mutableStateOf(null) }
-    var completeBy: LocalDate? by remember { mutableStateOf(null) }
-    var isDaily by remember { mutableStateOf(false) }
+    val title: MutableState<String>
+    val description: MutableState<String?>
+    var completeBy: MutableState<LocalDate?> = remember { mutableStateOf(null) }
+    val isDaily: MutableState<Boolean>
     var task: Task? = taskViewModel.getTaskById(id)
     val scrollState = rememberScrollState()
     val calenderState = rememberSheetState()
@@ -65,125 +62,139 @@ fun AddEditTask(
         .padding(start = 4.dp, top = 4.dp, end = 4.dp)
         .fillMaxWidth()
     val context = LocalContext.current
-    var headerText by remember { mutableStateOf(title) }
     var popUpMessage = "New task added"
 
-    if (task != null) {
-        title = task.title
-        description = task.description ?: ""
-        completeBy = task.completeBy
-        isDaily = task.isDaily
-        headerText = title
+    if (task == null) {
+        title = remember { mutableStateOf("") }
+        description = remember { mutableStateOf(null) }
+        completeBy = remember { mutableStateOf(null) }
+        isDaily = remember { mutableStateOf(false) }
+        dateText = "Complete By"
+    } else {
+        title = remember { mutableStateOf(task!!.title) }
+        description = remember { mutableStateOf(task!!.description) }
+        completeBy = if (completeBy.value == null) remember {
+            mutableStateOf(task!!.completeBy)
+        } else remember {
+            mutableStateOf(completeBy.value)
+        }
+        isDaily = remember { mutableStateOf(task!!.isDaily) }
         popUpMessage = "Task updated successfully"
+        dateText =
+            if (completeBy.value != null) completeBy.value!!.format(DateTimeFormatter.ofPattern("d MMM")) else dateText
+
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = headerText.ifEmpty { "Add Task" },
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        modifier = Modifier.width(200.dp)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate(Screens.MainScreen.route) }) {
+    Calender(
+        onDateChange = { date ->
+            completeBy.value = date
+            dateText = date.format(DateTimeFormatter.ofPattern("d MMM"))
+        },
+        calenderState = calenderState
+    )
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = standardModifier.wrapContentSize(),
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .wrapContentSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OutlinedTextField(
+                    value = title.value,
+                    onValueChange = { input -> title.value = input },
+                    label = { Text(text = "Title") },
+                    maxLines = 1,
+                    modifier = standardModifier
+                )
+
+                OutlinedTextField(
+                    value = description.value ?: "",
+                    onValueChange = { input -> description.value = input },
+                    label = { Text(text = "Description") },
+                    modifier = standardModifier
+                        .height(300.dp)
+                        .verticalScroll(scrollState)
+                )
+
+                Row(
+                    modifier = standardModifier,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            calenderState.show()
+                        }
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "back"
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Complete by"
                         )
                     }
-                },
-                backgroundColor = colorResource(id = R.color.app_default_color)
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    task = createTask(
-                        task,
-                        taskViewModel.getIdForNewTask(),
-                        title,
-                        description,
-                        completeBy
-                    )
-                    if (task == null) {
-                        Toast.makeText(context, "Title is empty", Toast.LENGTH_LONG).show()
-                    } else {
-                        taskViewModel.addTask(task)
-                        Toast.makeText(context, popUpMessage, Toast.LENGTH_LONG).show()
-                        navController.navigate(Screens.MainScreen.route)
-                    }
-                },
-                containerColor = colorResource(id = R.color.app_default_color)
-            ) {
-                Icon(imageVector = Icons.Default.Check, contentDescription = "Add task")
-            }
-        }
-    ) {
 
-        Calender(
-            onDateChange = { date ->
-                completeBy = date
-                dateText = date.format(DateTimeFormatter.ofPattern("d MMM"))
-            },
-            calenderState = calenderState
-        )
-
-
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextField(
-                value = title,
-                onValueChange = { input -> title = input },
-                label = { Text(text = "Title") },
-                maxLines = 1,
-                modifier = standardModifier
-            )
-
-            OutlinedTextField(
-                value = description ?: "",
-                onValueChange = { input -> description = input },
-                label = { Text(text = "Description") },
-                modifier = standardModifier
-                    .height(300.dp)
-                    .verticalScroll(scrollState)
-            )
-
-            Row(
-                modifier = standardModifier,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = {
-                        calenderState.show()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Complete by"
-                    )
+                    Text(text = dateText, modifier = standardModifier)
                 }
 
-                Text(text = dateText, modifier = standardModifier)
-            }
+                Row(
+                    modifier = standardModifier,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isDaily.value,
+                        onCheckedChange = { checked -> isDaily.value = checked })
+                    Text(text = "Daily Task", modifier = standardModifier)
+                }
 
-            Row(
-                modifier = standardModifier,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = isDaily,
-                    onCheckedChange = { checked -> isDaily = checked })
-                Text(text = "Daily Task", modifier = standardModifier)
-            }
+                Row(
+                    modifier = standardModifier,
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = {
+                            task = createTask(
+                                task,
+                                taskViewModel.getIdForNewTask(),
+                                title.value,
+                                description.value,
+                                completeBy.value,
+                                isDaily.value
+                            )
+                            val validationErrors: String? = validateTask(task)
+                            if (validationErrors != null) {
+                                Toast.makeText(context, validationErrors, Toast.LENGTH_LONG).show()
+                            } else {
+                                if (id == -1L) {
+                                    taskViewModel.addTask(task)
+                                } else {
+                                    taskViewModel.updateTask(task, userContext)
+                                }
+                                Toast.makeText(context, popUpMessage, Toast.LENGTH_LONG).show()
+                                onAddEditComplete()
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = "Confirm",
+                            color = colorResource(id = R.color.app_default_color)
+                        )
+                    }
+                    TextButton(onClick = { onDismiss() }) {
+                        Text(
+                            text = "Cancel",
+                            color = colorResource(id = R.color.app_default_color)
+                        )
+                    }
+                }
 
+            }
         }
     }
 }
@@ -199,11 +210,16 @@ private fun createTask(
     if (title.isEmpty() || title.isBlank()) {
         return null
     }
+    val updatedDescription: String? = if (description.isNullOrBlank() || description.isEmpty()) {
+        null
+    } else {
+        description
+    }
     return if (task == null) {
         val newTask = Task(
             id = id,
             title = title,
-            description = description,
+            description = updatedDescription,
             createdAt = LocalDate.now(),
             completeBy = completeBy,
             removedAt = null,
@@ -215,7 +231,7 @@ private fun createTask(
     } else {
         val updatedTask = task.copy(
             title = title,
-            description = description,
+            description = updatedDescription,
             completeBy = completeBy,
             isDaily = isDaily
         )
@@ -223,10 +239,13 @@ private fun createTask(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AddEditTaskPreview() {
-    val taskViewModel: TaskViewModel = viewModel()
-    val navController = rememberNavController()
-    AddEditTask(id = -1L, taskViewModel = taskViewModel, navController)
+
+private fun validateTask(task: Task?): String? {
+    return if (task == null) {
+        "Title is empty"
+    } else if (task.completeBy != null && task.completeBy < LocalDate.now()) {
+        "Invalid complete by date"
+    } else {
+        null
+    }
 }
