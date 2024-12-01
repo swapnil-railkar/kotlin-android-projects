@@ -1,7 +1,7 @@
 package com.todoify.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.todoify.data.entity.DummyTask
+import androidx.lifecycle.viewModelScope
 import com.todoify.data.entity.Task
 import com.todoify.data.graph.Graph
 import com.todoify.data.repository.TaskRepository
@@ -9,16 +9,36 @@ import com.todoify.navigation.Screens
 import com.todoify.util.SortTask
 import com.todoify.util.TaskState
 import com.todoify.util.UserContext
+import com.todoify.util.typeconverter.LocalDateTypeConverter
+import com.todoify.util.typeconverter.TaskStateTypeConverter
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class TaskViewModel(
     private val taskRepository: TaskRepository = Graph.tasksRepository
 ) : ViewModel() {
 
-    private var _todoTaskList: MutableList<Task> = DummyTask.dummyTasks
-    private var _historyTaskList: MutableList<Task> = mutableListOf<Task>()
+    private lateinit var _taskList: Flow<List<Task>>
+    private lateinit var _todoTaskList: MutableList<Task>
+    private lateinit var _historyTaskList: MutableList<Task>
     private val _sortTask = SortTask()
-    private var _nextId = DummyTask.dummyTasks.size
+
+
+    init {
+        viewModelScope.launch {
+            _taskList = taskRepository.getAllTasks()
+            _taskList.collect(FlowCollector {
+                val partitionedList =
+                    it.partition { item: Task ->
+                        TaskStateTypeConverter.toTaskState(item.status) == TaskState.IN_PROGRESS
+                    }
+                _todoTaskList = partitionedList.first.toMutableList()
+                _historyTaskList = partitionedList.second.toMutableList()
+            })
+        }
+    }
 
     private fun refreshList(taskList: List<Task>, userContext: UserContext) {
         if (userContext.screen == Screens.MainScreen.route) {
@@ -27,12 +47,6 @@ class TaskViewModel(
             this._historyTaskList = taskList.toMutableList()
         }
 
-    }
-
-    fun getIdForNewTask(): Long
-    {
-        _nextId += 1
-        return _nextId.toLong()
     }
 
     fun getTaskListForScreen(userContext: UserContext): List<Task> {
@@ -59,7 +73,10 @@ class TaskViewModel(
 
     fun removeAllTasks(tasks: List<Task>, userContext: UserContext) {
         tasks.map { item: Task ->
-            item.copy(status = TaskState.REMOVED, removedAt = LocalDate.now())
+            item.copy(
+                status = TaskStateTypeConverter.toString(TaskState.REMOVED),
+                removedAt = LocalDateTypeConverter.toString(LocalDate.now())
+            )
         }.forEach { item: Task ->
             updateTask(item, userContext)
         }
@@ -68,8 +85,8 @@ class TaskViewModel(
     fun removeTask(task: Task, isCompleted: Boolean, userContext: UserContext) {
         val taskState = if (isCompleted) TaskState.COMPLETED else TaskState.REMOVED
         val deletedTask = task.copy(
-            status = taskState,
-            removedAt = LocalDate.now()
+            status = TaskStateTypeConverter.toString(taskState),
+            removedAt = LocalDateTypeConverter.toString(LocalDate.now())
         )
         _historyTaskList.add(deletedTask)
         updateTask(deletedTask, userContext)
@@ -77,9 +94,16 @@ class TaskViewModel(
 
     fun deleteTask(task: Task) {
         _historyTaskList.remove(task)
+        viewModelScope.launch {
+            taskRepository.deleteTask(task)
+        }
     }
 
     fun deleteAllTasks() {
+        val idsToDelete = _historyTaskList.map { task: Task -> task.id }
+        viewModelScope.launch {
+            taskRepository.deleteAllTasks(idsToDelete)
+        }
         _historyTaskList.clear()
     }
 
@@ -88,18 +112,23 @@ class TaskViewModel(
             _todoTaskList.replaceAll { item: Task ->
                 if (item.id == updatedTask.id) updatedTask else item
             }
+            viewModelScope.launch {
+                taskRepository.updateTask(updatedTask)
+            }
             refreshList(_todoTaskList, userContext)
         }
 
     }
 
-    fun getTaskById(id: Long): Task? {
-        return _todoTaskList.find { item: Task -> item.id == id }
+    fun getTaskById(id: Long): Flow<Task> {
+        return taskRepository.getTaskById(id)
     }
 
     fun addTask(task: Task?) {
         if (task != null) {
-            _todoTaskList.add(task)
+            viewModelScope.launch {
+                taskRepository.addTask(task)
+            }
         }
     }
 

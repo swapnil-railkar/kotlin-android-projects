@@ -43,6 +43,8 @@ import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
 import com.todoify.util.TaskState
 import com.todoify.util.UserContext
+import com.todoify.util.typeconverter.LocalDateTypeConverter
+import com.todoify.util.typeconverter.TaskStateTypeConverter
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
 
@@ -157,7 +159,7 @@ private fun HistoryTask(
                     IconButton(onClick = { showDeleteTaskDialogue = true }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete task")
                     }
-                    if (task.status == TaskState.COMPLETED) {
+                    if (TaskStateTypeConverter.toTaskState(task.status) == TaskState.COMPLETED) {
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = null, tint = Color.Green
@@ -230,12 +232,12 @@ fun HistoryTaskPreview() {
                 "Shiver me timbers killick league fore ahoy hardtack belaying pin clap of thunder bring a spring upon her cable measured fer yer chains. Dance the hempen jig loot provost boom Arr yo-ho-ho long clothes draught aye spike. Weigh anchor yawl swab Gold Road barkadeer Sail ho cog wherry Davy Jones' Locker pressgang.\n" +
                 "\n" +
                 "Swab splice the main brace heave to booty jib yard fore flogging fathom aft. Jib topmast careen hempen halter scurvy Jack Tar hardtack hands take a caulk Letter of Marque. Keelhaul Sink me port yo-ho-ho quarter take a caulk red ensign handsomely haul wind draught.",
-        createdAt = LocalDate.now(),
-        completeBy = LocalDate.now().plusDays(3),
+        createdAt = LocalDateTypeConverter.toString(LocalDate.now())!!,
+        completeBy = LocalDateTypeConverter.toString(LocalDate.now().plusDays(3)),
         isImportant = false,
         isDaily = false,
-        status = TaskState.REMOVED,
-        removedAt = LocalDate.now()
+        status = TaskStateTypeConverter.toString(TaskState.REMOVED),
+        removedAt = LocalDateTypeConverter.toString(LocalDate.now())!!
     )
     HistoryTask(task = taskItem) {
 

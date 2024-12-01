@@ -66,10 +66,7 @@ fun MainView(
         searchInput = searchTitle
     )
     var taskList by remember {
-        mutableStateOf(
-            taskViewModel
-                .getTaskListForScreen(userContext)
-        )
+        mutableStateOf(taskViewModel.getTaskListForScreen(userContext))
     }
     var openAddEditTaskDialog by remember { mutableStateOf(false) }
     var addEditTaskId by remember { mutableLongStateOf(-1L) }

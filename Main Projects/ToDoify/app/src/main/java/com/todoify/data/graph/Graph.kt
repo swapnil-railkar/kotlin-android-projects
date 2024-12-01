@@ -6,7 +6,7 @@ import com.todoify.data.database.TodoifyDatabase
 import com.todoify.data.repository.TaskRepository
 
 object Graph {
-    lateinit var database: TodoifyDatabase
+    private lateinit var database: TodoifyDatabase
     val tasksRepository by lazy { TaskRepository(database.taskDao()) }
 
     fun provide(context: Context) {

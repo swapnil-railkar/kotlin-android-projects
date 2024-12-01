@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,8 @@ import com.todoify.commons.Calender
 import com.todoify.data.entity.Task
 import com.todoify.util.TaskState
 import com.todoify.util.UserContext
+import com.todoify.util.typeconverter.LocalDateTypeConverter
+import com.todoify.util.typeconverter.TaskStateTypeConverter
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -54,7 +57,7 @@ fun AddEditTask(
     val description: MutableState<String?>
     var completeBy: MutableState<LocalDate?> = remember { mutableStateOf(null) }
     val isDaily: MutableState<Boolean>
-    var task: Task? = taskViewModel.getTaskById(id)
+    var task: Task? = taskViewModel.getTaskById(id).collectAsState(initial = null).value
     val scrollState = rememberScrollState()
     val calenderState = rememberSheetState()
     var dateText by remember { mutableStateOf("Complete by") }
@@ -71,10 +74,11 @@ fun AddEditTask(
         isDaily = remember { mutableStateOf(false) }
         dateText = "Complete By"
     } else {
+        val completeByDate = LocalDateTypeConverter.toLocalDate(task.completeBy)
         title = remember { mutableStateOf(task!!.title) }
         description = remember { mutableStateOf(task!!.description) }
         completeBy = if (completeBy.value == null) remember {
-            mutableStateOf(task!!.completeBy)
+            mutableStateOf(completeByDate)
         } else remember {
             mutableStateOf(completeBy.value)
         }
@@ -161,7 +165,6 @@ fun AddEditTask(
                         onClick = {
                             task = createTask(
                                 task,
-                                taskViewModel.getIdForNewTask(),
                                 title.value,
                                 description.value,
                                 completeBy.value,
@@ -201,7 +204,6 @@ fun AddEditTask(
 
 private fun createTask(
     task: Task?,
-    id: Long,
     title: String,
     description: String?,
     completeBy: LocalDate?,
@@ -217,22 +219,21 @@ private fun createTask(
     }
     return if (task == null) {
         val newTask = Task(
-            id = id,
             title = title,
             description = updatedDescription,
-            createdAt = LocalDate.now(),
-            completeBy = completeBy,
+            createdAt = LocalDateTypeConverter.toString(LocalDate.now())!!,
+            completeBy = LocalDateTypeConverter.toString(completeBy),
             removedAt = null,
             isImportant = false,
             isDaily = isDaily,
-            status = TaskState.IN_PROGRESS
+            status = TaskStateTypeConverter.toString(TaskState.IN_PROGRESS)
         )
         newTask
     } else {
         val updatedTask = task.copy(
             title = title,
             description = updatedDescription,
-            completeBy = completeBy,
+            completeBy = LocalDateTypeConverter.toString(completeBy),
             isDaily = isDaily
         )
         updatedTask
@@ -243,7 +244,8 @@ private fun createTask(
 private fun validateTask(task: Task?): String? {
     return if (task == null) {
         "Title is empty"
-    } else if (task.completeBy != null && task.completeBy < LocalDate.now()) {
+    } else if (task.completeBy != null
+        && LocalDateTypeConverter.toLocalDate(task.completeBy)!! < LocalDate.now()) {
         "Invalid complete by date"
     } else {
         null

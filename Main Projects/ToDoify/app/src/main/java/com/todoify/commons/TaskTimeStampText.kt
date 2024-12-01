@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import com.todoify.data.entity.Task
 import com.todoify.navigation.Screens
 import com.todoify.util.TaskState
+import com.todoify.util.typeconverter.LocalDateTypeConverter
+import com.todoify.util.typeconverter.TaskStateTypeConverter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -26,19 +28,18 @@ fun TaskTimeStamps(
     val startString = if (screenContext == Screens.MainScreen.route) "From : " else "Created At : "
     val endString = if (screenContext == Screens.MainScreen.route) {
         "To : "
-    } else if (task.status == TaskState.COMPLETED) {
+    } else if (TaskStateTypeConverter.toTaskState(task.status) == TaskState.COMPLETED) {
         "Completed at : "
     } else {
         "Removed At : "
     }
 
-    val startTimeStamp = startString + getFormattedDate(task.createdAt)
+    val startTimeStamp =
+        startString + getFormattedDate(LocalDateTypeConverter.toLocalDate(task.createdAt))
     val endTimeStamp = if (screenContext == Screens.HistoryScreen.route) {
-        endString + getFormattedDate(task.removedAt!!)
-    } else if (task.completeBy != null) {
-        endString + getFormattedDate(task.completeBy)
+        endString + getFormattedDate(LocalDateTypeConverter.toLocalDate(task.removedAt))
     } else {
-        ""
+        endString + getFormattedDate(LocalDateTypeConverter.toLocalDate(task.completeBy))
     }
 
 
@@ -64,6 +65,10 @@ fun TaskTimeStamps(
     }
 }
 
-private fun getFormattedDate(date: LocalDate): String {
-    return date.format(DateTimeFormatter.ofPattern("d MMM"))
+private fun getFormattedDate(date: LocalDate?): String {
+    return if (date != null) {
+        date.format(DateTimeFormatter.ofPattern("d MMM"))
+    } else {
+        ""
+    }
 }
