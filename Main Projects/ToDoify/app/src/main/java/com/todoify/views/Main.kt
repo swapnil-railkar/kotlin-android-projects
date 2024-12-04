@@ -25,6 +25,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,8 +66,11 @@ fun MainView(
         screen = Screens.MainScreen.route,
         searchInput = searchTitle
     )
+    val todoTaskInit = taskViewModel.getTasksForScreen(Screens.MainScreen.route).collectAsState(
+        initial = emptyList()
+    )
     var taskList by remember {
-        mutableStateOf(taskViewModel.getTaskListForScreen(userContext))
+        mutableStateOf(taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value))
     }
     var openAddEditTaskDialog by remember { mutableStateOf(false) }
     var addEditTaskId by remember { mutableLongStateOf(-1L) }
@@ -78,12 +82,12 @@ fun MainView(
                 onDateChange = {
                     dateContext = it
                     userContext = userContext.copy(date = dateContext)
-                    taskList = taskViewModel.getTaskListForScreen(userContext)
+                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
                 },
                 onSearchTitle = {
                     searchTitle = it
                     userContext = userContext.copy(searchInput = searchTitle)
-                    taskList = taskViewModel.getTaskListForScreen(userContext)
+                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
                 },
                 onClearAllItems = {
                     showRemoveAllAlert = true
@@ -117,7 +121,7 @@ fun MainView(
                 userContext = userContext,
                 onAddEditComplete = {
                     openAddEditTaskDialog = false
-                    taskList = taskViewModel.getTaskListForScreen(userContext = userContext)
+                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
                 }
             )
         }
@@ -128,7 +132,7 @@ fun MainView(
                 onConfirmation = {
                     taskViewModel.removeAllTasks(taskList, userContext)
                     showRemoveAllAlert = false
-                    taskList = taskViewModel.getTaskListForScreen(userContext)
+                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
                 },
                 onDisMissDialog = { showRemoveAllAlert = false }
             )
@@ -145,7 +149,7 @@ fun MainView(
                         ) {
                             taskViewModel.removeTask(task, false, userContext)
                             taskList = taskViewModel
-                                .getTaskListForScreen(userContext)
+                                .getTaskListForScreen(userContext, todoTaskInit.value)
                         }
                         true
                     }
@@ -162,12 +166,12 @@ fun MainView(
                                 val updatedTask = task.copy(isImportant = important)
                                 taskViewModel.updateTask(updatedTask, userContext)
                                 taskList = taskViewModel
-                                    .getTaskListForScreen(userContext)
+                                    .getTaskListForScreen(userContext, todoTaskInit.value)
                             },
                             onMarkComplete = {
                                 taskViewModel.removeTask(task, true, userContext)
                                 taskList = taskViewModel
-                                    .getTaskListForScreen(userContext)
+                                    .getTaskListForScreen(userContext, todoTaskInit.value)
                             },
                             onClick = {
                                 addEditTaskId = task.id

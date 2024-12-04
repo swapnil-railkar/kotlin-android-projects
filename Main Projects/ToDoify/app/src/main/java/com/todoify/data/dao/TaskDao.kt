@@ -30,7 +30,7 @@ abstract class TaskDao {
     @Query(value = "select * from `task` where `status` = :state")
     abstract fun getTodoTasks(
         state: String = TaskStateTypeConverter.toString(TaskState.IN_PROGRESS)
-    )
+    ): Flow<List<Task>>
 
     @Query(value = "select * from `task` where `status` in (:states)")
     abstract fun getHistoryTasks(
@@ -38,7 +38,7 @@ abstract class TaskDao {
             TaskStateTypeConverter.toString(TaskState.COMPLETED),
             TaskStateTypeConverter.toString(TaskState.REMOVED)
         )
-    )
+    ): Flow<List<Task>>
 
     @Query(value = "select * from `task` where `id` = :id")
     abstract fun getTaskById(id: Long): Flow<Task>

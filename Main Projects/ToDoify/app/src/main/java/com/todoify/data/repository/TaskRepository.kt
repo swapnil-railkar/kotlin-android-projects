@@ -10,6 +10,14 @@ class TaskRepository(private val taskDao: TaskDao) {
         return taskDao.getAllTasks()
     }
 
+    fun getTodoTasks(): Flow<List<Task>> {
+        return taskDao.getTodoTasks()
+    }
+
+    fun getHistoryTasks(): Flow<List<Task>> {
+        return taskDao.getHistoryTasks()
+    }
+
     fun getTaskById(id: Long): Flow<Task> {
         return taskDao.getTaskById(id)
     }
