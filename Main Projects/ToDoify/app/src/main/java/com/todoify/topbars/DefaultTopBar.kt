@@ -1,15 +1,12 @@
 package com.todoify.topbars
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -35,64 +32,32 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun DefaultTopBar(
     onDateChange: (LocalDate) -> Unit,
-    onSearchTitle: (String) -> Unit,
+    onsearchStateChange: (Boolean) -> Unit,
     onClearAllItems: () -> Unit
 ) {
     var searchState by remember { mutableStateOf(false) }
-    var searchTitle by remember { mutableStateOf("") }
 
     TopAppBar(
         title = {
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TopBarContent(onDateChange = onDateChange)
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(
-                        modifier = Modifier.padding(4.dp),
-                        onClick = {
-                            searchState = !searchState
-                        }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search button"
-                        )
-                    }
-                }
-
-                if (searchState) {
-                    OutlinedTextField(
-                        value = searchTitle,
-                        onValueChange = { input ->
-                            searchTitle = input
-                            onSearchTitle(searchTitle)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                        maxLines = 1,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = colorResource(id = R.color.app_default_color)
-                            )
-                        },
-                        trailingIcon = {
-                            androidx.compose.material.IconButton(onClick = { searchTitle = "" }) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "clear"
-                                )
-                            }
-                        }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TopBarContent(onDateChange = onDateChange)
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    modifier = Modifier.padding(4.dp),
+                    onClick = {
+                        searchState = !searchState
+                        onsearchStateChange(searchState)
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search button"
                     )
                 }
             }
-
         },
         navigationIcon = {
             TopBarMoreVert(

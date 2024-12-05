@@ -2,6 +2,7 @@ package com.todoify.views
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +26,6 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,10 +44,14 @@ import androidx.navigation.compose.rememberNavController
 import com.todoify.R
 import com.todoify.bottombar.DefaultBottomBar
 import com.todoify.commons.RemoveAllTasks
+import com.todoify.commons.SearchField
 import com.todoify.commons.TaskTimeStamps
 import com.todoify.data.entity.Task
+import com.todoify.data.graph.Graph
+import com.todoify.data.repository.TaskRepository
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
+import com.todoify.util.FetchTaskHelper
 import com.todoify.util.UserContext
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
@@ -56,43 +60,54 @@ import java.time.LocalDate
 @Composable
 fun MainView(
     taskViewModel: TaskViewModel,
-    navController: NavController
+    navController: NavController,
+    taskRepository: TaskRepository
 ) {
+    val fetchTaskHelper = FetchTaskHelper(taskViewModel, taskRepository)
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var showRemoveAllAlert by remember { mutableStateOf(false) }
     var searchTitle by remember { mutableStateOf("") }
-    var userContext = UserContext(
-        date = dateContext,
-        screen = Screens.MainScreen.route,
-        searchInput = searchTitle
-    )
-    val todoTaskInit = taskViewModel.getTasksForScreen(Screens.MainScreen.route).collectAsState(
-        initial = emptyList()
-    )
-    var taskList by remember {
-        mutableStateOf(taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value))
+    var userContext by remember {
+        mutableStateOf(
+            UserContext(
+                date = dateContext,
+                screen = Screens.MainScreen.route,
+                searchInput = searchTitle
+            )
+        )
     }
+    val taskList = fetchTaskHelper.getTodoTasksForDate(date = dateContext)
+    var openSearchBar by remember { mutableStateOf(false) }
     var openAddEditTaskDialog by remember { mutableStateOf(false) }
     var addEditTaskId by remember { mutableLongStateOf(-1L) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            DefaultTopBar(
-                onDateChange = {
-                    dateContext = it
-                    userContext = userContext.copy(date = dateContext)
-                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
-                },
-                onSearchTitle = {
-                    searchTitle = it
-                    userContext = userContext.copy(searchInput = searchTitle)
-                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
-                },
-                onClearAllItems = {
-                    showRemoveAllAlert = true
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                DefaultTopBar(
+                    onDateChange = {
+                        dateContext = it
+                        userContext = userContext.copy(date = dateContext)
+                    },
+                    onsearchStateChange = {
+                        openSearchBar = it
+                    },
+                    onClearAllItems = {
+                        showRemoveAllAlert = true
+                    }
+                )
+
+                if (openSearchBar) {
+                    SearchField(onSearchTitle = {
+                        searchTitle = it
+                        userContext = userContext.copy(searchInput = searchTitle)
+                    })
                 }
-            )
+            }
+
         },
         bottomBar = {
             DefaultBottomBar(
@@ -121,7 +136,6 @@ fun MainView(
                 userContext = userContext,
                 onAddEditComplete = {
                     openAddEditTaskDialog = false
-                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
                 }
             )
         }
@@ -130,9 +144,8 @@ fun MainView(
             RemoveAllTasks(
                 content = stringResource(id = R.string.alert_content_main_screen),
                 onConfirmation = {
-                    taskViewModel.removeAllTasks(taskList, userContext)
+                    taskViewModel.removeAllTasks(taskList.value, userContext)
                     showRemoveAllAlert = false
-                    taskList = taskViewModel.getTaskListForScreen(userContext, todoTaskInit.value)
                 },
                 onDisMissDialog = { showRemoveAllAlert = false }
             )
@@ -140,7 +153,7 @@ fun MainView(
 
         LazyColumn(modifier = Modifier.padding(it)) {
 
-            items(items = taskList,
+            items(items = taskList.value,
                 key = { item: Task -> item.id }) { task ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = { dismissValue ->
@@ -148,8 +161,6 @@ fun MainView(
                             || dismissValue == DismissValue.DismissedToStart
                         ) {
                             taskViewModel.removeTask(task, false, userContext)
-                            taskList = taskViewModel
-                                .getTaskListForScreen(userContext, todoTaskInit.value)
                         }
                         true
                     }
@@ -165,13 +176,9 @@ fun MainView(
                             onMarkImportant = { important ->
                                 val updatedTask = task.copy(isImportant = important)
                                 taskViewModel.updateTask(updatedTask, userContext)
-                                taskList = taskViewModel
-                                    .getTaskListForScreen(userContext, todoTaskInit.value)
                             },
                             onMarkComplete = {
                                 taskViewModel.removeTask(task, true, userContext)
-                                taskList = taskViewModel
-                                    .getTaskListForScreen(userContext, todoTaskInit.value)
                             },
                             onClick = {
                                 addEditTaskId = task.id
@@ -244,5 +251,6 @@ private fun TaskItem(
 fun MainViewPreview() {
     val taskViewModel: TaskViewModel = viewModel()
     val navController = rememberNavController()
-    MainView(taskViewModel, navController = navController)
+    val repository: TaskRepository = Graph.tasksRepository
+    MainView(taskViewModel, navController = navController, repository)
 }

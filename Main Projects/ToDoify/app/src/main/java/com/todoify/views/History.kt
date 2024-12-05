@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,10 +37,13 @@ import androidx.navigation.NavController
 import com.todoify.R
 import com.todoify.bottombar.DefaultBottomBar
 import com.todoify.commons.RemoveAllTasks
+import com.todoify.commons.SearchField
 import com.todoify.commons.TaskTimeStamps
 import com.todoify.data.entity.Task
+import com.todoify.data.repository.TaskRepository
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
+import com.todoify.util.FetchTaskHelper
 import com.todoify.util.TaskState
 import com.todoify.util.UserContext
 import com.todoify.util.typeconverter.LocalDateTypeConverter
@@ -52,8 +54,10 @@ import java.time.LocalDate
 @Composable
 fun HistoryView(
     taskViewModel: TaskViewModel,
-    navController: NavController
+    navController: NavController,
+    taskRepository: TaskRepository
 ) {
+    val fetchTaskHelper = FetchTaskHelper(taskViewModel, taskRepository)
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var searchTitle by remember { mutableStateOf("") }
     var historyUserContext = UserContext(
@@ -61,31 +65,35 @@ fun HistoryView(
         screen = Screens.HistoryScreen.route,
         searchInput = searchTitle
     )
-    var historyTaskInit = taskViewModel.getTasksForScreen(Screens.HistoryScreen.route).collectAsState(
-        initial = emptyList()
-    )
-    var taskList by remember {
-        mutableStateOf(taskViewModel.getTaskListForScreen(historyUserContext, historyTaskInit.value))
-    }
+    val historyTasks = fetchTaskHelper.getHistoryTasksForDate(date = dateContext)
     var displayRemoveAllAlert by remember { mutableStateOf(false) }
+    var openSearchBar by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
-            DefaultTopBar(
-                onDateChange = {
-                    dateContext = it
-                    historyUserContext = historyUserContext.copy(date = dateContext)
-                    taskList = taskViewModel.getTaskListForScreen(historyUserContext)
-                },
-                onSearchTitle = {
-                    searchTitle = it
-                    historyUserContext = historyUserContext.copy(searchInput = searchTitle)
-                    taskList = taskViewModel.getTaskListForScreen(historyUserContext)
-                },
-                onClearAllItems = {
-                    displayRemoveAllAlert = true
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                DefaultTopBar(
+                    onDateChange = {
+                        dateContext = it
+                        historyUserContext = historyUserContext.copy(date = dateContext)
+                    },
+                    onsearchStateChange = {
+                        openSearchBar = it
+                    },
+                    onClearAllItems = {
+                        displayRemoveAllAlert = true
+                    }
+                )
+
+                if (openSearchBar) {
+                    SearchField(onSearchTitle = {
+                        searchTitle = it
+                        historyUserContext = historyUserContext.copy(searchInput = searchTitle)
+                    })
                 }
-            )
+            }
         },
         bottomBar = {
             DefaultBottomBar(
@@ -99,18 +107,16 @@ fun HistoryView(
             RemoveAllTasks(content = stringResource(id = R.string.alert_content_history_screen),
                 onDisMissDialog = { displayRemoveAllAlert = false },
                 onConfirmation = {
-                    taskViewModel.deleteAllTasks()
-                    taskList = taskViewModel.getTaskListForScreen(historyUserContext)
+                    taskViewModel.deleteAllTasks(historyTasks.value)
                     displayRemoveAllAlert = false
                 }
             )
         }
 
         LazyColumn(modifier = Modifier.padding(it)) {
-            items(items = taskList, key = { item: Task -> item.id }) { task ->
+            items(items = historyTasks.value, key = { item: Task -> item.id }) { task ->
                 HistoryTask(task = task) {
                     taskViewModel.deleteTask(task)
-                    taskList = taskViewModel.getTaskListForScreen(userContext = historyUserContext)
                 }
             }
         }
