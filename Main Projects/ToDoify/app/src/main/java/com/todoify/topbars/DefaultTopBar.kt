@@ -32,8 +32,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun DefaultTopBar(
     onDateChange: (LocalDate) -> Unit,
-    onsearchStateChange: (Boolean) -> Unit,
-    onClearAllItems: () -> Unit
+    onSearchStateChange: (Boolean) -> Unit,
+    onClearAllItems: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     var searchState by remember { mutableStateOf(false) }
 
@@ -50,7 +51,7 @@ fun DefaultTopBar(
                     modifier = Modifier.padding(4.dp),
                     onClick = {
                         searchState = !searchState
-                        onsearchStateChange(searchState)
+                        onSearchStateChange(searchState)
                     }) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -61,7 +62,8 @@ fun DefaultTopBar(
         },
         navigationIcon = {
             TopBarMoreVert(
-                onClearAllTask = { onClearAllItems() }
+                onClearAllTask = { onClearAllItems() },
+                onOpenSettingsAlert = { onOpenSettings() }
             )
         },
         backgroundColor = colorResource(id = R.color.app_default_color)

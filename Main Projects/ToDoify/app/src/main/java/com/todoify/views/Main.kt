@@ -1,5 +1,6 @@
 package com.todoify.views
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +48,7 @@ import com.todoify.R
 import com.todoify.bottombar.DefaultBottomBar
 import com.todoify.commons.RemoveAllTasks
 import com.todoify.commons.SearchField
+import com.todoify.commons.TaskRemoverSettingsAlert
 import com.todoify.commons.TaskTimeStamps
 import com.todoify.data.entity.Task
 import com.todoify.data.graph.Graph
@@ -70,6 +74,9 @@ fun MainView(
     var openSearchBar by remember { mutableStateOf(false) }
     var openAddEditTaskDialog by remember { mutableStateOf(false) }
     var addEditTaskId by remember { mutableLongStateOf(-1L) }
+    var openSettings by remember { mutableStateOf(false) }
+    var deleteTaskDays by remember { mutableIntStateOf(30) }
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -81,7 +88,7 @@ fun MainView(
                     onDateChange = {
                         dateContext = it
                     },
-                    onsearchStateChange = {
+                    onSearchStateChange = {
                         openSearchBar = it
                         if (!openSearchBar) {
                             searchTitle = ""
@@ -89,6 +96,9 @@ fun MainView(
                     },
                     onClearAllItems = {
                         showRemoveAllAlert = true
+                    },
+                    onOpenSettings = {
+                        openSettings = true
                     }
                 )
 
@@ -118,6 +128,25 @@ fun MainView(
             }
         }
     ) {
+
+        if (openSettings) {
+            TaskRemoverSettingsAlert(
+                currentSetting = 30,
+                onSettingsChanged = { days: Int? ->
+                    if (days == null || days < 1) {
+                        Toast.makeText(context, "Invalid value", Toast.LENGTH_LONG).show()
+                    } else if (days > 365) {
+                        Toast.makeText(context, "Value should be less than 365", Toast.LENGTH_LONG)
+                            .show()
+                    } else {
+                        deleteTaskDays = days
+                    }
+                },
+                onDisMissAlert = {
+                    openSettings = false
+                }
+            )
+        }
 
         if (openAddEditTaskDialog) {
             AddEditTask(

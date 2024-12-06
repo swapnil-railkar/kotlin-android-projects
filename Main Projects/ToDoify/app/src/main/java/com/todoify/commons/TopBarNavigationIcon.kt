@@ -24,7 +24,8 @@ import com.todoify.R
 
 @Composable
 fun TopBarMoreVert(
-    onClearAllTask: () -> Unit
+    onClearAllTask: () -> Unit,
+    onOpenSettingsAlert: () -> Unit
 ) {
     var openMoreVert by remember { mutableStateOf(false) }
     val moreVertItems = mutableMapOf<String, Int>(
@@ -63,7 +64,7 @@ fun TopBarMoreVert(
 
     when (selectedMoreVertItem) {
         stringResource(id = R.string.notification_settings) -> {
-            /* Todo open settings pop up */
+            onOpenSettingsAlert()
         }
 
         stringResource(id = R.string.clear_all_tasks) -> {
