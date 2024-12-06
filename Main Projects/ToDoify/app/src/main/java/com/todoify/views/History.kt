@@ -45,7 +45,6 @@ import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
 import com.todoify.util.FetchTaskHelper
 import com.todoify.util.TaskState
-import com.todoify.util.UserContext
 import com.todoify.util.typeconverter.LocalDateTypeConverter
 import com.todoify.util.typeconverter.TaskStateTypeConverter
 import com.todoify.viewmodel.TaskViewModel
@@ -60,12 +59,7 @@ fun HistoryView(
     val fetchTaskHelper = FetchTaskHelper(taskViewModel, taskRepository)
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var searchTitle by remember { mutableStateOf("") }
-    var historyUserContext = UserContext(
-        date = dateContext,
-        screen = Screens.HistoryScreen.route,
-        searchInput = searchTitle
-    )
-    val historyTasks = fetchTaskHelper.getHistoryTasksForDate(date = dateContext)
+    val historyTasks = fetchTaskHelper.getHistoryTasksForDate(date = dateContext, searchTitle)
     var displayRemoveAllAlert by remember { mutableStateOf(false) }
     var openSearchBar by remember { mutableStateOf(false) }
 
@@ -77,7 +71,6 @@ fun HistoryView(
                 DefaultTopBar(
                     onDateChange = {
                         dateContext = it
-                        historyUserContext = historyUserContext.copy(date = dateContext)
                     },
                     onsearchStateChange = {
                         openSearchBar = it
@@ -90,7 +83,6 @@ fun HistoryView(
                 if (openSearchBar) {
                     SearchField(onSearchTitle = {
                         searchTitle = it
-                        historyUserContext = historyUserContext.copy(searchInput = searchTitle)
                     })
                 }
             }

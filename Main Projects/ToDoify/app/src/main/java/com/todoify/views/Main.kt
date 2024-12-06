@@ -52,7 +52,6 @@ import com.todoify.data.repository.TaskRepository
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
 import com.todoify.util.FetchTaskHelper
-import com.todoify.util.UserContext
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
 
@@ -67,16 +66,7 @@ fun MainView(
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var showRemoveAllAlert by remember { mutableStateOf(false) }
     var searchTitle by remember { mutableStateOf("") }
-    var userContext by remember {
-        mutableStateOf(
-            UserContext(
-                date = dateContext,
-                screen = Screens.MainScreen.route,
-                searchInput = searchTitle
-            )
-        )
-    }
-    val taskList = fetchTaskHelper.getTodoTasksForDate(date = dateContext)
+    val taskList = fetchTaskHelper.getTodoTasksForDate(date = dateContext, searchTitle)
     var openSearchBar by remember { mutableStateOf(false) }
     var openAddEditTaskDialog by remember { mutableStateOf(false) }
     var addEditTaskId by remember { mutableLongStateOf(-1L) }
@@ -90,10 +80,12 @@ fun MainView(
                 DefaultTopBar(
                     onDateChange = {
                         dateContext = it
-                        userContext = userContext.copy(date = dateContext)
                     },
                     onsearchStateChange = {
                         openSearchBar = it
+                        if (!openSearchBar) {
+                            searchTitle = ""
+                        }
                     },
                     onClearAllItems = {
                         showRemoveAllAlert = true
@@ -103,7 +95,6 @@ fun MainView(
                 if (openSearchBar) {
                     SearchField(onSearchTitle = {
                         searchTitle = it
-                        userContext = userContext.copy(searchInput = searchTitle)
                     })
                 }
             }
@@ -133,7 +124,6 @@ fun MainView(
                 id = addEditTaskId,
                 taskViewModel = taskViewModel,
                 onDismiss = { openAddEditTaskDialog = false },
-                userContext = userContext,
                 onAddEditComplete = {
                     openAddEditTaskDialog = false
                 }
@@ -144,7 +134,7 @@ fun MainView(
             RemoveAllTasks(
                 content = stringResource(id = R.string.alert_content_main_screen),
                 onConfirmation = {
-                    taskViewModel.removeAllTasks(taskList.value, userContext)
+                    taskViewModel.removeAllTasks(taskList.value)
                     showRemoveAllAlert = false
                 },
                 onDisMissDialog = { showRemoveAllAlert = false }
@@ -160,7 +150,7 @@ fun MainView(
                         if (dismissValue == DismissValue.DismissedToEnd
                             || dismissValue == DismissValue.DismissedToStart
                         ) {
-                            taskViewModel.removeTask(task, false, userContext)
+                            taskViewModel.removeTask(task, false)
                         }
                         true
                     }
@@ -175,10 +165,10 @@ fun MainView(
                             task = task,
                             onMarkImportant = { important ->
                                 val updatedTask = task.copy(isImportant = important)
-                                taskViewModel.updateTask(updatedTask, userContext)
+                                taskViewModel.updateTask(updatedTask)
                             },
                             onMarkComplete = {
-                                taskViewModel.removeTask(task, true, userContext)
+                                taskViewModel.removeTask(task, true)
                             },
                             onClick = {
                                 addEditTaskId = task.id

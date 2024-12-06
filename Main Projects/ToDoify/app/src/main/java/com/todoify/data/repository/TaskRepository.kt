@@ -6,10 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 class TaskRepository(private val taskDao: TaskDao) {
 
-    fun getAllTasks(): Flow<List<Task>> {
-        return taskDao.getAllTasks()
-    }
-
     fun getTodoTasks(): Flow<List<Task>> {
         return taskDao.getTodoTasks()
     }

@@ -24,9 +24,6 @@ abstract class TaskDao {
     @Delete
     abstract suspend fun deleteTask(task: Task)
 
-    @Query(value = "select * from `task`")
-    abstract fun getAllTasks(): Flow<List<Task>>
-
     @Query(value = "select * from `task` where `status` = :state")
     abstract fun getTodoTasks(
         state: String = TaskStateTypeConverter.toString(TaskState.IN_PROGRESS)

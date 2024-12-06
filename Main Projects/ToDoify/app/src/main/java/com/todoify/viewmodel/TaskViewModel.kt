@@ -6,7 +6,6 @@ import com.todoify.data.entity.Task
 import com.todoify.data.graph.Graph
 import com.todoify.data.repository.TaskRepository
 import com.todoify.util.TaskState
-import com.todoify.util.UserContext
 import com.todoify.util.typeconverter.LocalDateTypeConverter
 import com.todoify.util.typeconverter.TaskStateTypeConverter
 import kotlinx.coroutines.flow.Flow
@@ -17,24 +16,24 @@ class TaskViewModel(
     private val taskRepository: TaskRepository = Graph.tasksRepository
 ) : ViewModel() {
 
-    fun removeAllTasks(tasks: List<Task>, userContext: UserContext) {
+    fun removeAllTasks(tasks: List<Task>) {
         tasks.map { item: Task ->
             item.copy(
                 status = TaskStateTypeConverter.toString(TaskState.REMOVED),
                 removedAt = LocalDateTypeConverter.toString(LocalDate.now())
             )
         }.forEach { item: Task ->
-            updateTask(item, userContext)
+            updateTask(item)
         }
     }
 
-    fun removeTask(task: Task, isCompleted: Boolean, userContext: UserContext) {
+    fun removeTask(task: Task, isCompleted: Boolean) {
         val taskState = if (isCompleted) TaskState.COMPLETED else TaskState.REMOVED
         val deletedTask = task.copy(
             status = TaskStateTypeConverter.toString(taskState),
             removedAt = LocalDateTypeConverter.toString(LocalDate.now())
         )
-        updateTask(deletedTask, userContext)
+        updateTask(deletedTask)
     }
 
     fun deleteTask(task: Task) {
@@ -50,7 +49,7 @@ class TaskViewModel(
         }
     }
 
-    fun updateTask(updatedTask: Task?, userContext: UserContext) {
+    fun updateTask(updatedTask: Task?) {
         if (updatedTask != null) {
             viewModelScope.launch {
                 taskRepository.updateTask(updatedTask)

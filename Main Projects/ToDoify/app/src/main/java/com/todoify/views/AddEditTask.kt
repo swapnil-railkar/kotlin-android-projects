@@ -38,7 +38,6 @@ import com.todoify.R
 import com.todoify.commons.Calender
 import com.todoify.data.entity.Task
 import com.todoify.util.TaskState
-import com.todoify.util.UserContext
 import com.todoify.util.typeconverter.LocalDateTypeConverter
 import com.todoify.util.typeconverter.TaskStateTypeConverter
 import com.todoify.viewmodel.TaskViewModel
@@ -49,7 +48,6 @@ import java.time.format.DateTimeFormatter
 fun AddEditTask(
     id: Long,
     taskViewModel: TaskViewModel,
-    userContext: UserContext,
     onDismiss: () -> Unit,
     onAddEditComplete: () -> Unit
 ) {
@@ -177,7 +175,7 @@ fun AddEditTask(
                                 if (id == -1L) {
                                     taskViewModel.addTask(task)
                                 } else {
-                                    taskViewModel.updateTask(task, userContext)
+                                    taskViewModel.updateTask(task)
                                 }
                                 Toast.makeText(context, popUpMessage, Toast.LENGTH_LONG).show()
                                 onAddEditComplete()
@@ -245,7 +243,8 @@ private fun validateTask(task: Task?): String? {
     return if (task == null) {
         "Title is empty"
     } else if (task.completeBy != null
-        && LocalDateTypeConverter.toLocalDate(task.completeBy)!! < LocalDate.now()) {
+        && LocalDateTypeConverter.toLocalDate(task.completeBy)!! < LocalDate.now()
+    ) {
         "Invalid complete by date"
     } else {
         null

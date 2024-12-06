@@ -41,7 +41,10 @@ fun SearchField(
             )
         },
         trailingIcon = {
-            IconButton(onClick = { searchTitle = "" }) {
+            IconButton(onClick = {
+                searchTitle = ""
+                onSearchTitle(searchTitle)
+            }) {
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = "clear"
