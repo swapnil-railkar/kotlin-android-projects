@@ -9,10 +9,10 @@ import com.todoify.data.entity.TaskAgeLimit
 
 @Database(
     entities = [Task::class, TaskAgeLimit::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
-abstract class TodoifyDatabase: RoomDatabase() {
-    abstract fun taskDao() : TaskDao
-    abstract fun taskAgeLimitDao() : TaskAgeLimitDao
+abstract class MainDatabase: RoomDatabase() {
+    abstract fun taskDao(): TaskDao
+    abstract fun taskAgeLimitDao(): TaskAgeLimitDao
 }

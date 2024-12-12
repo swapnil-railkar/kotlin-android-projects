@@ -2,7 +2,9 @@ package com.todoify.data.repository
 
 import com.todoify.data.dao.TaskDao
 import com.todoify.data.entity.Task
+import com.todoify.util.typeconverter.LocalDateTypeConverter
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 class TaskRepository(private val taskDao: TaskDao) {
 
@@ -34,8 +36,10 @@ class TaskRepository(private val taskDao: TaskDao) {
         taskDao.deleteAllTasks(idsToDelete)
     }
 
-    suspend fun clearTasks() {
-        taskDao.clearTasks()
+    suspend fun clearTasks(ageLimit: Int) {
+        val expiryDate = LocalDate.now().minusDays(ageLimit.toLong())
+        val expiryDateString =  LocalDateTypeConverter.toString(expiryDate)!!
+        taskDao.clearTasks(expiryDateString)
     }
 
     suspend fun updateExpiredTasks() {

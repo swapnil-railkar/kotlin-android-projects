@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,13 +45,15 @@ import com.todoify.commons.SearchField
 import com.todoify.commons.TaskRemoverSettingsAlert
 import com.todoify.commons.TaskTimeStamps
 import com.todoify.data.entity.Task
-import com.todoify.data.repository.TaskRepository
+import com.todoify.data.entity.TaskAgeLimit
+import com.todoify.data.graph.Graph
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
-import com.todoify.util.FetchTaskHelper
+import com.todoify.util.FetchHelper
 import com.todoify.util.TaskState
 import com.todoify.util.typeconverter.LocalDateTypeConverter
 import com.todoify.util.typeconverter.TaskStateTypeConverter
+import com.todoify.viewmodel.TaskAgeLimitViewModel
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
 
@@ -58,17 +61,21 @@ import java.time.LocalDate
 fun HistoryView(
     taskViewModel: TaskViewModel,
     navController: NavController,
-    taskRepository: TaskRepository
+    taskAgeLimitViewModel: TaskAgeLimitViewModel
 ) {
-    val fetchTaskHelper = FetchTaskHelper(taskViewModel, taskRepository)
+    val ageLimit =
+        taskAgeLimitViewModel.getCurrentTaskAgeLimit().collectAsState(initial = TaskAgeLimit())
+    val fetchHelper = FetchHelper(Graph.tasksRepository, ageLimit.value.age)
+
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var searchTitle by remember { mutableStateOf("") }
-    val historyTasks = fetchTaskHelper.getHistoryTasksForDate(date = dateContext, searchTitle)
     var displayRemoveAllAlert by remember { mutableStateOf(false) }
     var openSearchBar by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
     var deleteTaskDays by remember { mutableIntStateOf(30) }
+
     val context = LocalContext.current
+    val historyTasks = fetchHelper.getHistoryTasksForDate(date = dateContext, searchTitle)
 
     Scaffold(
         topBar = {
@@ -135,6 +142,7 @@ fun HistoryView(
                 onConfirmation = {
                     taskViewModel.deleteAllTasks(historyTasks.value)
                     displayRemoveAllAlert = false
+                    taskAgeLimitViewModel.updateTaskAgeLimit(deleteTaskDays, ageLimit.value)
                 }
             )
         }

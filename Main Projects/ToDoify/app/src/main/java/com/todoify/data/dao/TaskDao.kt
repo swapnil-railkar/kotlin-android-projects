@@ -43,11 +43,9 @@ abstract class TaskDao {
     @Query(value = "delete from `task` where `id` in (:idsToDelete)")
     abstract suspend fun deleteAllTasks(idsToDelete: List<Long>)
 
-    // Following two are scheduled tasks, will run once everyday at 00.00
-    @Query(value = "delete from `task` where `createdAt` <= :monthAgo")
-    abstract suspend fun clearTasks(
-        monthAgo: String = LocalDateTypeConverter.toString(LocalDate.now().minusMonths(1))!!
-    )
+    // Following two are tasks will run as soon as app boot up
+    @Query(value = "delete from `task` where `isDaily` = false and `createdAt` <= :expiryDate")
+    abstract suspend fun clearTasks(expiryDate: String)
 
     @Query(value = "update `task` set `status` = :state where `completeBy` < :today")
     abstract suspend fun updateExpiredTasks(

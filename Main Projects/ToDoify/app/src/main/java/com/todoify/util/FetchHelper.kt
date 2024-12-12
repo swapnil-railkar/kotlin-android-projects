@@ -3,23 +3,28 @@ package com.todoify.util
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewModelScope
 import com.todoify.data.entity.Task
+import com.todoify.data.graph.Graph
 import com.todoify.data.repository.TaskRepository
-import com.todoify.viewmodel.TaskViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class FetchTaskHelper(taskViewModel: TaskViewModel, taskRepository: TaskRepository) {
+class FetchHelper(
+    private val taskRepository: TaskRepository = Graph.tasksRepository,
+    private val ageLimit: Int
+) {
     private lateinit var todoTasksFlow: Flow<List<Task>>
     private lateinit var historyTasksFlow: Flow<List<Task>>
-    private val repository = taskRepository
     private val sortTask = SortTask()
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     init {
-        taskViewModel.viewModelScope.launch {
+        scope.launch {
             todoTasksFlow = taskRepository.getTodoTasks()
             historyTasksFlow = taskRepository.getHistoryTasks()
         }
@@ -28,7 +33,7 @@ class FetchTaskHelper(taskViewModel: TaskViewModel, taskRepository: TaskReposito
     @Composable
     fun getTodoTasksForDate(date: LocalDate, search: String): State<List<Task>> {
         val tasksState: State<List<Task>> =
-            repository.getTodoTasks().collectAsState(initial = emptyList())
+            taskRepository.getTodoTasks().collectAsState(initial = emptyList())
         val filteredTasks = filterTaskByTitle(
             tasks = sortTask.getTasksForMainScreen(tasksState, date),
             search = search
@@ -39,7 +44,7 @@ class FetchTaskHelper(taskViewModel: TaskViewModel, taskRepository: TaskReposito
     @Composable
     fun getHistoryTasksForDate(date: LocalDate, search: String): State<List<Task>> {
         val tasksState: State<List<Task>> =
-            repository.getHistoryTasks().collectAsState(initial = emptyList())
+            taskRepository.getHistoryTasks().collectAsState(initial = emptyList())
         val filteredTasks = filterTaskByTitle(
             tasks = sortTask.getTasksForHistoryScreen(tasksState, date),
             search = search
@@ -52,6 +57,17 @@ class FetchTaskHelper(taskViewModel: TaskViewModel, taskRepository: TaskReposito
             tasks
         } else {
             tasks.filter { item: Task -> item.title.contains(search) }
+        }
+    }
+
+    @Composable
+    fun UpdateExpiredTasks() {
+        update(ageLimit)
+    }
+
+    private fun update(ageLimit: Int) {
+        scope.launch {
+            taskRepository.clearTasks(ageLimit)
         }
     }
 }

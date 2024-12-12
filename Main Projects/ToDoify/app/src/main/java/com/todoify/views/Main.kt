@@ -27,6 +27,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -51,11 +52,12 @@ import com.todoify.commons.SearchField
 import com.todoify.commons.TaskRemoverSettingsAlert
 import com.todoify.commons.TaskTimeStamps
 import com.todoify.data.entity.Task
+import com.todoify.data.entity.TaskAgeLimit
 import com.todoify.data.graph.Graph
-import com.todoify.data.repository.TaskRepository
 import com.todoify.navigation.Screens
 import com.todoify.topbars.DefaultTopBar
-import com.todoify.util.FetchTaskHelper
+import com.todoify.util.FetchHelper
+import com.todoify.viewmodel.TaskAgeLimitViewModel
 import com.todoify.viewmodel.TaskViewModel
 import java.time.LocalDate
 
@@ -64,19 +66,24 @@ import java.time.LocalDate
 fun MainView(
     taskViewModel: TaskViewModel,
     navController: NavController,
-    taskRepository: TaskRepository
+    taskAgeLimitViewModel: TaskAgeLimitViewModel
 ) {
-    val fetchTaskHelper = FetchTaskHelper(taskViewModel, taskRepository)
+    val ageLimit =
+        taskAgeLimitViewModel.getCurrentTaskAgeLimit().collectAsState(initial = TaskAgeLimit())
+    val fetchHelper = FetchHelper(Graph.tasksRepository, ageLimit.value.age)
+
     var dateContext by remember { mutableStateOf(LocalDate.now()) }
     var showRemoveAllAlert by remember { mutableStateOf(false) }
     var searchTitle by remember { mutableStateOf("") }
-    val taskList = fetchTaskHelper.getTodoTasksForDate(date = dateContext, searchTitle)
     var openSearchBar by remember { mutableStateOf(false) }
     var openAddEditTaskDialog by remember { mutableStateOf(false) }
     var addEditTaskId by remember { mutableLongStateOf(-1L) }
     var openSettings by remember { mutableStateOf(false) }
     var deleteTaskDays by remember { mutableIntStateOf(30) }
+
     val context = LocalContext.current
+    fetchHelper.UpdateExpiredTasks()
+    val taskList = fetchHelper.getTodoTasksForDate(date = dateContext, searchTitle)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -131,7 +138,7 @@ fun MainView(
 
         if (openSettings) {
             TaskRemoverSettingsAlert(
-                currentSetting = 30,
+                currentSetting = ageLimit.value.age,
                 onSettingsChanged = { days: Int? ->
                     if (days == null || days < 1) {
                         Toast.makeText(context, "Invalid value", Toast.LENGTH_LONG).show()
@@ -140,7 +147,9 @@ fun MainView(
                             .show()
                     } else {
                         deleteTaskDays = days
+                        taskAgeLimitViewModel.updateTaskAgeLimit(deleteTaskDays, ageLimit.value)
                     }
+                    openSettings = false
                 },
                 onDisMissAlert = {
                     openSettings = false
@@ -269,7 +278,7 @@ private fun TaskItem(
 @Preview(showBackground = true)
 fun MainViewPreview() {
     val taskViewModel: TaskViewModel = viewModel()
+    val taskAgeLimitViewModel: TaskAgeLimitViewModel = viewModel()
     val navController = rememberNavController()
-    val repository: TaskRepository = Graph.tasksRepository
-    MainView(taskViewModel, navController = navController, repository)
+    MainView(taskViewModel, navController = navController, taskAgeLimitViewModel)
 }

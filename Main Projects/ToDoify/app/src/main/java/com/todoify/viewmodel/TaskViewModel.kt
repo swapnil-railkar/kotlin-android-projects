@@ -16,6 +16,12 @@ class TaskViewModel(
     private val taskRepository: TaskRepository = Graph.tasksRepository
 ) : ViewModel() {
 
+    init {
+        viewModelScope.launch {
+            taskRepository.updateExpiredTasks()
+        }
+    }
+
     fun removeAllTasks(tasks: List<Task>) {
         tasks.map { item: Task ->
             item.copy(
